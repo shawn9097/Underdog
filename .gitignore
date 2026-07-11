@@ -1,0 +1,11 @@
+# Personal, machine-local Claude Code files — keep these OUT of version control
+# so each person's private settings and notes stay their own.
+CLAUDE.local.md
+.claude/settings.local.json
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# TODO: add language/tool ignores as the project grows
+# (e.g. node_modules/, __pycache__/, target/, dist/, .env)
