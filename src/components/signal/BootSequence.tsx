@@ -74,7 +74,12 @@ export default function BootSequence({
             {l.text}
           </span>
         ))}
-        <span className="sig-boot-skip">▮ CLICK / ANY KEY TO SKIP</span>
+        <span className="sig-boot-skip">
+          <i className="cur" aria-hidden>
+            ▮
+          </i>{" "}
+          CLICK / ANY KEY TO SKIP
+        </span>
       </span>
     </button>
   );

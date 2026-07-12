@@ -22,6 +22,19 @@ function Meter({ ch }: { ch: number }) {
   );
 }
 
+interface RxEvent {
+  t: string;
+  msg: string;
+  deny?: boolean;
+}
+
+function stamp(): string {
+  const d = new Date();
+  return [d.getHours(), d.getMinutes(), d.getSeconds()]
+    .map((v) => String(v).padStart(2, "0"))
+    .join(":");
+}
+
 export default function SignalConsole() {
   const [phase, setPhase] = useState<"idle" | "boot" | "live">("idle");
   const [reduced, setReduced] = useState(false);
@@ -30,8 +43,10 @@ export default function SignalConsole() {
   const [burst, setBurst] = useState(false);
   const [buf, setBuf] = useState("");
   const [deny, setDeny] = useState(false);
+  const [drop, setDrop] = useState(false);
   const [audioOn, setAudioOn] = useState(false);
   const [clock, setClock] = useState("--:--:--");
+  const [rxLog, setRxLog] = useState<RxEvent[]>([]);
 
   const audioRef = useRef<SignalAudio | null>(null);
   const chRef = useRef(ch);
@@ -40,6 +55,7 @@ export default function SignalConsole() {
   const burstT = useRef(0);
   const bufT = useRef(0);
   const denyT = useRef(0);
+  const dropT = useRef(0);
 
   // Reduced-motion + boot gate (client only — no hydration divergence).
   useEffect(() => {
@@ -69,21 +85,33 @@ export default function SignalConsole() {
     return () => window.clearInterval(id);
   }, []);
 
-  const selectChannel = useCallback((n: number) => {
-    bufRef.current = "";
-    setBuf("");
-    window.clearTimeout(bufT.current);
-    if (chRef.current === n) return;
-    chRef.current = n;
-    setCh(n);
-    setTuneStamp((s) => s + 1);
-    audioRef.current?.tune(n);
-    if (!reducedRef.current) {
-      setBurst(true);
-      window.clearTimeout(burstT.current);
-      burstT.current = window.setTimeout(() => setBurst(false), 420);
-    }
+  const pushLog = useCallback((msg: string, isDeny?: boolean) => {
+    setRxLog((l) => [{ t: stamp(), msg, deny: isDeny }, ...l].slice(0, 3));
   }, []);
+
+  const selectChannel = useCallback(
+    (n: number) => {
+      bufRef.current = "";
+      setBuf("");
+      window.clearTimeout(bufT.current);
+      if (chRef.current === n) return;
+      chRef.current = n;
+      setCh(n);
+      setTuneStamp((s) => s + 1);
+      audioRef.current?.tune(n);
+      pushLog(
+        n === 0
+          ? "RETUNE → CH 00 GHOST CARRIER"
+          : `RETUNE → CH ${padCh(n)} ${CHANNELS[n].freq} MHZ`
+      );
+      if (!reducedRef.current) {
+        setBurst(true);
+        window.clearTimeout(burstT.current);
+        burstT.current = window.setTimeout(() => setBurst(false), 420);
+      }
+    },
+    [pushLog]
+  );
 
   const commitBuf = useCallback(
     (b: string) => {
@@ -93,13 +121,20 @@ export default function SignalConsole() {
       const n = parseInt(b, 10);
       if (Number.isInteger(n) && n >= 0 && n <= 14) {
         selectChannel(n);
+      } else if (b === "31") {
+        // Easter egg: CH 31 is reserved for the drop — 07.31.2026.
+        setDrop(true);
+        pushLog(`INTERCEPT '31' — THE DROP ${BRAND.releaseDateDisplay}`);
+        window.clearTimeout(dropT.current);
+        dropT.current = window.setTimeout(() => setDrop(false), 1800);
       } else {
         setDeny(true);
+        pushLog(`DENY '${b}' — NO CARRIER ON BAND`, true);
         window.clearTimeout(denyT.current);
         denyT.current = window.setTimeout(() => setDeny(false), 750);
       }
     },
-    [selectChannel]
+    [selectChannel, pushLog]
   );
 
   const pushDigit = useCallback(
@@ -110,7 +145,7 @@ export default function SignalConsole() {
       window.clearTimeout(bufT.current);
       bufT.current = window.setTimeout(
         () => commitBuf(next),
-        next.length >= 2 ? 240 : 900
+        next.length >= 2 ? 240 : 1300
       );
     },
     [commitBuf]
@@ -191,12 +226,17 @@ export default function SignalConsole() {
             <span className="sig-brand-sub">PIRATE CARRIER — SIXTY LEVELS UNDER THE HALO</span>
           </div>
           <div className="sig-head-mid">
-            <span className={`sig-tune${deny ? " deny" : ""}`} aria-live="polite">
+            <span
+              className={`sig-tune${deny ? " deny" : ""}${drop ? " drop" : ""}`}
+              aria-live="polite"
+            >
               {deny
                 ? "NO CARRIER"
-                : buf
-                  ? `TUNING ▸ ${buf}█`
-                  : `RX CH ${padCh(ch)} — LOCKED`}
+                : drop
+                  ? "CH 31 — RESERVED"
+                  : buf
+                    ? `TUNING ▸ ${buf}█`
+                    : `RX CH ${padCh(ch)} — LOCKED`}
             </span>
             <Meter ch={ch} />
             <span className="sig-clock" aria-label="Local time">
@@ -218,11 +258,48 @@ export default function SignalConsole() {
       </header>
 
       <main className="sig-main">
-        <ChannelDial current={ch} onSelect={selectChannel} />
+        <div className="sig-side">
+          <ChannelDial current={ch} onSelect={selectChannel} />
+          <div className="sig-rxlog" aria-hidden>
+            <p className="sig-rxlog-head">RX LOG ▪ LAST 3 EVENTS</p>
+            <ol>
+              {rxLog.length === 0 ? (
+                <li>--:--:-- MONITORING — NO EVENTS</li>
+              ) : (
+                rxLog.map((e, i) => (
+                  <li key={`${e.t}-${e.msg}-${i}`} className={e.deny ? "deny" : undefined}>
+                    {e.t} {e.msg}
+                  </li>
+                ))
+              )}
+            </ol>
+          </div>
+        </div>
         <div className="sig-stage">
           <ChannelCard channel={channel} tuneStamp={tuneStamp} reduced={reduced} />
         </div>
       </main>
+
+      {(buf || deny || drop) && (
+        <div
+          className={`sig-osd${deny ? " deny" : ""}${drop ? " drop" : ""}`}
+          aria-hidden
+        >
+          <span className="sig-osd-tag">
+            {deny ? "TUNER REJECT" : drop ? "RESERVED CARRIER — THE DROP" : "TUNER INPUT"}
+          </span>
+          {deny ? (
+            "NO CARRIER"
+          ) : drop ? (
+            BRAND.releaseDateDisplay
+          ) : (
+            <>
+              CH {buf}
+              <span className="u">{buf.length < 2 ? "–" : ""}</span>
+            </>
+          )}
+        </div>
+      )}
 
       <p className="sig-vh" aria-live="polite">
         {channel.track
@@ -231,7 +308,15 @@ export default function SignalConsole() {
       </p>
 
       {phase === "boot" && (
-        <BootSequence reduced={reduced} onDone={() => setPhase("live")} />
+        <BootSequence
+          reduced={reduced}
+          onDone={() => {
+            setPhase("live");
+            pushLog(
+              `CARRIER LOCK → CH ${padCh(chRef.current)} ${CHANNELS[chRef.current].freq} MHZ`
+            );
+          }}
+        />
       )}
     </div>
   );

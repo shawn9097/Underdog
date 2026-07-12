@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BRAND } from "@/lib/album";
 import { type Channel, padCh, seedFor } from "./data";
 import SignalTrace from "./SignalTrace";
@@ -100,6 +100,23 @@ export default function ChannelCard({ channel, tuneStamp, reduced }: Props) {
   const tkey = `${channel.ch}:${tuneStamp}`;
   const comps = t ? t.style.split(", ") : [];
 
+  // Phosphor burn-in: the previous frequency lingers as a dim afterimage
+  // behind the new readout for a beat after each retune.
+  const [burn, setBurn] = useState<{ freq: string; ghost: boolean } | null>(null);
+  const prevRef = useRef<{ freq: string; ghost: boolean }>({
+    freq: channel.freq,
+    ghost,
+  });
+  useEffect(() => {
+    const prev = prevRef.current;
+    if (prev.freq === channel.freq) return;
+    prevRef.current = { freq: channel.freq, ghost };
+    if (reduced) return;
+    setBurn(prev);
+    const id = window.setTimeout(() => setBurn(null), 800);
+    return () => window.clearTimeout(id);
+  }, [channel.freq, ghost, reduced]);
+
   return (
     <article
       className={`sig-card${ghost ? " is-ghost" : ""}`}
@@ -124,6 +141,14 @@ export default function ChannelCard({ channel, tuneStamp, reduced }: Props) {
         <div className="sig-freq">
           {channel.freq}
           <small>MHz</small>
+          {burn && (
+            <span
+              className={`sig-freq-burn${burn.ghost ? " was-ghost" : ""}`}
+              aria-hidden
+            >
+              {burn.freq}
+            </span>
+          )}
         </div>
         <div className="sig-readout-meta">
           <span>
@@ -182,7 +207,10 @@ export default function ChannelCard({ channel, tuneStamp, reduced }: Props) {
       <Link href="/key" className="sig-cta">
         <span className="sig-cta-tag">INTERCEPTED INSTRUCTION — APPENDED TO EVERY BROADCAST</span>
         <span className="sig-cta-body">
-          NOW ACCEPTING TENANTS IN UNDERDOG CITY — CLAIM YOUR KEY <span className="arr">→</span>
+          NOW ACCEPTING TENANTS IN UNDERDOG CITY — CLAIM YOUR{" "}
+          <span className="nw">
+            KEY <span className="arr">→</span>
+          </span>
         </span>
       </Link>
     </article>

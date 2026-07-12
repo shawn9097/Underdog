@@ -75,14 +75,14 @@ export default function SignalTrace({ seed, bpm, ghost, tuneStamp, reduced, labe
       const mid = h / 2;
       ctx.clearRect(0, 0, w, h);
 
-      // graticule
-      ctx.strokeStyle = "rgba(205,193,88,0.10)";
+      // graticule — blood-tinted on the ghost carrier, phosphor gold otherwise
+      ctx.strokeStyle = ghost ? "rgba(217,43,63,0.14)" : "rgba(205,193,88,0.10)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, mid);
       ctx.lineTo(w, mid);
       ctx.stroke();
-      ctx.fillStyle = "rgba(205,193,88,0.16)";
+      ctx.fillStyle = ghost ? "rgba(217,43,63,0.2)" : "rgba(205,193,88,0.16)";
       for (let x = 0; x < w; x += 36) ctx.fillRect(x, mid - 3, 1, 6);
 
       const env = ghost ? 1 : reduced ? 0 : Math.max(0, 1 - (t - burstStart) / 620);

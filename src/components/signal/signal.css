@@ -7,7 +7,7 @@
 .sig-root {
   --phos: #cdc158;
   --phos-bright: #f0e793;
-  --phos-dim: #6f682c;
+  --phos-dim: #7a7233;
   --phos-faint: rgba(205, 193, 88, 0.12);
   --phos-line: rgba(205, 193, 88, 0.22);
 
@@ -147,9 +147,9 @@
   top: 0;
   z-index: 40;
   padding: 0.55rem 1.25rem 0.5rem;
-  background: rgba(6, 5, 7, 0.94);
+  background: rgba(6, 5, 7, 0.97);
   border-bottom: 1px solid var(--phos-line);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
 }
 
 .sig-head-row {
@@ -196,6 +196,11 @@
 }
 .sig-tune.deny {
   color: var(--blood-bright);
+  animation: sig-deny 0.32s steps(5) 1;
+}
+.sig-tune.drop {
+  color: var(--gold-white);
+  text-shadow: 0 0 12px rgba(255, 233, 168, 0.5);
 }
 
 .sig-meter {
@@ -301,15 +306,134 @@
   align-items: start;
 }
 
+.sig-side {
+  position: sticky;
+  top: 6.6rem;
+  min-width: 0;
+}
+
 .sig-stage {
   min-width: 0;
 }
 
-/* -------- channel dial -------- */
-.sig-dial {
-  position: sticky;
-  top: 6.6rem;
+/* -------- tuning OSD — TV-remote style channel entry -------- */
+.sig-osd {
+  position: fixed;
+  top: 8.75rem;
+  right: 1.5rem;
+  z-index: 73; /* above the vignette (72) so the phosphor stays hot */
+  pointer-events: none;
+  padding: 0.5rem 0.9rem 0.55rem;
+  border: 1px solid rgba(212, 167, 44, 0.5);
+  background: rgba(4, 3, 5, 0.93);
+  font-family: var(--font-tektur), monospace;
+  font-size: 2.2rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--gold-hot);
+  text-shadow: 0 0 22px rgba(245, 200, 76, 0.55);
+  box-shadow:
+    0 0 30px rgba(212, 167, 44, 0.14),
+    inset 0 0 16px rgba(212, 167, 44, 0.08);
+  animation: sig-osd-in 120ms steps(3) 1;
 }
+.sig-osd .u {
+  color: var(--phos-dim);
+  text-shadow: none;
+}
+.sig-osd-tag {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.3em;
+  color: var(--phos-dim);
+}
+.sig-osd.deny {
+  border-color: rgba(217, 43, 63, 0.55);
+  color: var(--blood-bright);
+  font-size: 1.35rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.7rem;
+  text-shadow: 0 0 18px rgba(217, 43, 63, 0.55);
+  box-shadow:
+    0 0 30px rgba(217, 43, 63, 0.14),
+    inset 0 0 16px rgba(217, 43, 63, 0.1);
+  animation: sig-deny 0.32s steps(5) 1;
+}
+.sig-osd.deny .sig-osd-tag {
+  color: rgba(217, 43, 63, 0.7);
+}
+/* Easter egg — dialing 31 finds the reserved drop-date carrier. */
+.sig-osd.drop {
+  border-color: rgba(255, 233, 168, 0.6);
+  color: var(--gold-white);
+  font-size: 1.7rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.65rem;
+  text-shadow: 0 0 24px rgba(255, 233, 168, 0.6);
+  box-shadow:
+    0 0 34px rgba(245, 200, 76, 0.22),
+    inset 0 0 18px rgba(245, 200, 76, 0.12);
+}
+.sig-osd.drop .sig-osd-tag {
+  color: var(--gold);
+}
+
+/* -------- RX log — relay marginalia. Fixed HUD chip bottom-right on
+   wide desktop (where the main column leaves a gutter), in-flow under
+   the dial everywhere else. -------- */
+.sig-rxlog {
+  margin-top: 1.1rem;
+  border-top: 1px dashed var(--phos-line);
+  padding-top: 0.5rem;
+}
+@media (min-width: 1201px) {
+  .sig-rxlog {
+    position: fixed;
+    right: 1rem;
+    bottom: 2.6rem;
+    z-index: 55;
+    margin: 0;
+    padding: 0.45rem 0.65rem 0.5rem;
+    border: 1px solid rgba(205, 193, 88, 0.16);
+    border-top: 1px solid rgba(205, 193, 88, 0.16);
+    background: rgba(4, 3, 5, 0.92);
+    pointer-events: none;
+  }
+}
+.sig-rxlog-head {
+  margin: 0 0 0.3rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  color: var(--phos-dim);
+}
+.sig-rxlog ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sig-rxlog li {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  line-height: 1.9;
+  color: var(--phos);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sig-rxlog li:nth-child(2) {
+  opacity: 0.62;
+}
+.sig-rxlog li:nth-child(3) {
+  opacity: 0.38;
+}
+.sig-rxlog li.deny {
+  color: var(--blood-bright);
+}
+
+/* -------- channel dial -------- */
 .sig-dial-head {
   display: flex;
   justify-content: space-between;
@@ -328,11 +452,11 @@
 .sig-ch {
   width: 100%;
   display: grid;
-  grid-template-columns: 3.4rem 3.2rem minmax(0, 1fr) 0.8rem;
-  gap: 0.55rem;
+  grid-template-columns: 3.2rem 3rem minmax(0, 1fr) 0.7rem;
+  gap: 0.5rem;
   align-items: baseline;
-  min-height: 42px;
-  padding: 0.48rem 0.6rem;
+  min-height: 40px;
+  padding: 0.42rem 0.55rem;
   background: transparent;
   border: 1px solid transparent;
   border-left: 2px solid transparent;
@@ -345,6 +469,9 @@
 .sig-ch:hover {
   background: var(--phos-faint);
   color: var(--phos-bright);
+}
+.sig-ch:hover .f {
+  color: var(--phos);
 }
 .sig-ch[aria-pressed="true"] {
   border-color: rgba(212, 167, 44, 0.5);
@@ -370,8 +497,8 @@
   color: var(--gold);
 }
 .sig-ch .t {
-  font-size: 0.73rem;
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -468,13 +595,19 @@
   position: absolute;
   top: 0.45rem;
   left: 0.6rem;
-  font-size: 0.56rem;
+  font-size: 0.58rem;
   letter-spacing: 0.22em;
   color: var(--phos-dim);
 }
 .sig-trace-tag.right {
   left: auto;
   right: 0.6rem;
+}
+.sig-card.is-ghost .sig-trace-wrap {
+  border-color: rgba(217, 43, 63, 0.32);
+}
+.sig-card.is-ghost .sig-trace-tag {
+  color: rgba(217, 43, 63, 0.62);
 }
 
 .sig-readout {
@@ -499,6 +632,23 @@
   color: var(--gold-dim);
   letter-spacing: 0.3em;
   margin-left: 0.5rem;
+}
+/* Phosphor burn-in afterimage of the previous frequency. */
+.sig-freq {
+  position: relative;
+}
+.sig-freq-burn {
+  position: absolute;
+  left: 5px;
+  top: -5px;
+  pointer-events: none;
+  user-select: none;
+  color: rgba(205, 193, 88, 0.17);
+  text-shadow: 0 0 10px rgba(205, 193, 88, 0.12);
+}
+.sig-freq-burn.was-ghost {
+  color: rgba(217, 43, 63, 0.2);
+  text-shadow: 0 0 10px rgba(217, 43, 63, 0.14);
 }
 .sig-card.is-ghost .sig-freq {
   color: var(--blood-bright);
@@ -564,18 +714,22 @@
 .sig-sec-h {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
   margin: 0 0 0.6rem;
-  font-family: var(--font-pixelify), monospace;
-  font-size: 0.82rem;
+  /* Silkscreen, not Pixelify — Pixelify's C/O and B/G were ambiguous
+     ("COMPOSITION" read as "OOMPOSITION"). */
+  font-family: var(--font-silkscreen), monospace;
+  font-size: 0.72rem;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold);
 }
 .sig-sec-h::after {
   content: "";
   flex: 1;
+  min-width: 2.5rem;
   border-top: 1px solid var(--phos-line);
 }
 .sig-sec-h .cnt {
@@ -691,6 +845,9 @@
 .sig-cta .arr {
   color: var(--gold-hot);
 }
+.sig-cta .nw {
+  white-space: nowrap;
+}
 
 /* -------- boot overlay -------- */
 .sig-boot {
@@ -746,7 +903,17 @@
   font-size: 0.58rem;
   letter-spacing: 0.32em;
   color: var(--phos-dim);
+}
+/* Only the cursor glyph blinks — the instruction itself must stay readable. */
+.sig-boot-skip .cur {
+  font-style: normal;
   animation: sig-blink 1.4s steps(2) infinite;
+}
+@media (max-width: 480px) {
+  .sig-boot-line {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+  }
 }
 
 /* -------- keyframes -------- */
@@ -782,6 +949,19 @@
   72% { transform: translateX(4px); }
   100% { transform: translateX(0); }
 }
+@keyframes sig-deny {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+@keyframes sig-osd-in {
+  0% { transform: translateY(-5px); }
+  60% { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}
 
 /* -------- responsive -------- */
 @media (max-width: 1200px) {
@@ -800,7 +980,7 @@
     padding: 1rem 0.9rem 0;
     gap: 1.1rem;
   }
-  .sig-dial {
+  .sig-side {
     position: static;
   }
   .sig-dial ul {
@@ -816,9 +996,28 @@
     border: 1px solid rgba(205, 193, 88, 0.16);
     border-left: 2px solid transparent;
   }
+  .sig-ch .t {
+    white-space: normal;
+    line-height: 1.3;
+  }
   .sig-ch .f,
   .sig-ch .lock {
     display: none;
+  }
+  .sig-osd {
+    top: auto;
+    bottom: 4.75rem;
+    right: 0.9rem;
+    font-size: 1.8rem;
+  }
+  .sig-osd.deny {
+    font-size: 1.1rem;
+  }
+  .sig-osd.drop {
+    font-size: 1.3rem;
+  }
+  .sig-rxlog {
+    margin-top: 0.8rem;
   }
   .sig-kintsugi {
     height: 38vh;
