@@ -4,37 +4,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-Underdog — <!-- TODO: one or two sentences on what this project is and does. -->
+**Underdog City** is a transmedia dark-fantasy IP fronted by a masked, anonymous
+music artist. The music, the story (anime/novel), and the brand are **one
+object**, not three projects. Debut album: *Throne at the Bottom* (Cenotaph
+Records, 14 tracks, releases July 31, 2026).
 
-<!--
-This file is loaded into Claude's context at the START OF EVERY SESSION, so keep
-it lean and high-signal. Document what's true across the whole repo and would
-otherwise have to be rediscovered each time. Fill in the TODOs below and delete
-the markers; remove any section that doesn't apply. Push long or specialized
-detail into `.claude/skills/` or a separate doc you @import, not into here.
--->
+**Thesis:** the world throws people away; down here, the broken discover that
+broken things hold the most power — and build a kingdom out of everything that
+was discarded. *"We all rule down here."*
+
+The full brand + story + music bible lives in
+[`docs/underdog-city-brief.md`](docs/underdog-city-brief.md). Verbatim song
+lyrics + style boxes are in [`docs/songbook/`](docs/songbook/). This file stays
+lean on purpose — read those for detail before doing story, brand, or lyric work.
 
 ## Commands
 
-<!-- TODO: the handful of commands used most while developing here, e.g.: -->
-<!--   Install deps:      -->
-<!--   Build:             -->
-<!--   Run / dev server:  -->
-<!--   Lint / format:     -->
-<!--   Test (all):        -->
-<!--   Test (single):     the exact incantation to run ONE test — easy to forget -->
+<!-- No code yet — this is a lore/brand repo plus `.claude/skills/`. A pre-release
+     website build (email capture) is planned; fill this in once that scaffold exists. -->
 
 ## Architecture
 
-<!-- TODO: the big-picture structure that spans multiple files — the stuff that
-     ISN'T obvious from reading any single file. What are the main pieces, how do
-     they talk to each other, where does a request/data flow begin and end, which
-     directories hold what. Capture the non-obvious; skip what's self-evident. -->
+- `docs/underdog-city-brief.md` — the single source of truth (brand core, story
+  world, KINTSUGI magic system, the MC, and the *Throne at the Bottom* tracklist).
+- `docs/songbook/` — one `.txt` per track, verbatim (TITLE / STYLE / LYRICS).
+- `.claude/skills/` — design & tooling skills (see below).
 
 ## Conventions & gotchas
 
-<!-- TODO: project-specific rules and surprises. Naming patterns, "always do X
-     before Y", things that look wrong but are intentional, footguns to avoid. -->
+- **The brief is authoritative over older notes.** The song catalog was corrected
+  against the actual playlist: "Saints" → **No Saints**, "Sinners" → **Lights Go
+  Low**, the old "Monster" song → **Villain**. Don't reintroduce dropped working
+  titles (The House, Atrophy, After the Fire, etc.) as if current.
+- **Tone:** dark, defiant, cathartic, anti-redemption, found-family heart under a
+  hard shell. Keep brand/story copy in that voice.
+- **The mask stays on** — the artist is anonymous; never imply a revealed face.
+- **The Old Song** (track 9) is the renamed **Unwritten**; the cut track was
+  **Prey**. Don't list Prey or a standalone "Unwritten" as current.
 
 ## Related Claude Code config
 
