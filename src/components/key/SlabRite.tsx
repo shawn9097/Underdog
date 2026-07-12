@@ -107,6 +107,7 @@ export default function SlabRite({
       morphDst: [] as Pt[],
       formedFired: false,
       sparkAcc: 0,
+      aim: null as Pt | null,
     };
 
     let slabTex: HTMLCanvasElement | null = null;
@@ -425,6 +426,33 @@ export default function SlabRite({
       ctx.fillRect(0, 0, W, H);
     };
 
+    /** The molten seam the slab rests over — gold waiting under the floor. */
+    const drawSeam = (intensity: number, bob: number) => {
+      if (intensity <= 0.01) return;
+      const { sx, sy, sw, sh } = rect();
+      const y = sy + sh + 16 + bob * 0.35;
+      const cx = sx + sw / 2;
+      ctx.save();
+      ctx.translate(cx, y);
+      ctx.scale(1, 0.16);
+      ctx.translate(-cx, -y);
+      const g = ctx.createRadialGradient(cx, y, 0, cx, y, sw * 0.72);
+      g.addColorStop(0, `rgba(212,167,44,${0.22 * intensity})`);
+      g.addColorStop(0.6, `rgba(138,106,31,${0.08 * intensity})`);
+      g.addColorStop(1, "rgba(212,167,44,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, y, sw * 0.72, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      const lg = ctx.createLinearGradient(sx, 0, sx + sw, 0);
+      lg.addColorStop(0, "rgba(245,200,76,0)");
+      lg.addColorStop(0.5, `rgba(245,200,76,${0.55 * intensity})`);
+      lg.addColorStop(1, "rgba(245,200,76,0)");
+      ctx.fillStyle = lg;
+      ctx.fillRect(sx + sw * 0.05, y, sw * 0.9, 1);
+    };
+
     const drawDarkCracks = (bob: number, goldSeep: number) => {
       const { sx, sy, sw, sh } = rect();
       ctx.save();
@@ -592,6 +620,33 @@ export default function SlabRite({
       ctx.restore();
     };
 
+    /** Aiming reticle — the strike point seeds the key, so you aim the blow. */
+    const drawReticle = () => {
+      if (!S.aim || rmRef.current) return;
+      const { x, y } = S.aim;
+      const breathe = 0.45 + 0.18 * Math.sin(clock * 4);
+      ctx.save();
+      ctx.strokeStyle = `rgba(245,200,76,${breathe})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, 13, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(212,167,44,${breathe * 0.4})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 24 + Math.sin(clock * 2.2) * 2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(245,200,76,${breathe})`;
+      ctx.beginPath();
+      for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+        ctx.moveTo(x + dx * 16, y + dy * 16);
+        ctx.lineTo(x + dx * 21, y + dy * 21);
+      }
+      ctx.stroke();
+      ctx.fillStyle = `rgba(255,233,168,${breathe + 0.2})`;
+      ctx.fillRect(x - 1, y - 1, 2, 2);
+      ctx.restore();
+    };
+
     const drawParticles = (dt: number) => {
       // chips
       for (let i = S.chips.length - 1; i >= 0; i--) {
@@ -672,14 +727,18 @@ export default function SlabRite({
       const bob = rmRef.current || S.phase !== "await" ? 0 : Math.sin(clock * 0.85) * 5;
 
       if (S.phase === "await") {
-        drawGlow(0.05 + S.strikes * 0.05, Math.min(W, H) * 0.5);
+        drawGlow(0.08 + S.strikes * 0.05, Math.min(W, H) * 0.5);
+        const breathe = rmRef.current ? 1 : 0.82 + 0.18 * Math.sin(clock * 1.1);
+        drawSeam((0.35 + S.strikes * 0.22) * breathe, bob);
         if (slabTex) {
           const { sx, sy, sw, sh } = rect();
           ctx.drawImage(slabTex, sx, sy + bob, sw, sh);
         }
         drawDarkCracks(bob, S.strikes >= 2 ? 0.5 + 0.5 * Math.sin(clock * 3) * 0.4 : 0);
+        drawReticle();
       } else if (S.phase === "shatter") {
         const p = clamp01(S.phaseT / SHATTER_D);
+        drawSeam((1 - p) * 0.9, 0);
         drawGlow(0.15 + p * 0.3, Math.min(W, H) * 0.5);
         drawGoldCracks(p * 0.35, 0.4 + p * 0.4);
         drawShards(p);
@@ -799,6 +858,25 @@ export default function SlabRite({
       strike(e.clientX - r.left, e.clientY - r.top);
     };
 
+    const onPointerMove = (e: PointerEvent) => {
+      if (rmRef.current || S.phase !== "await" || S.strikes >= 3) {
+        S.aim = null;
+        return;
+      }
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const { sx, sy, sw, sh } = rect();
+      S.aim =
+        x >= sx - 8 && x <= sx + sw + 8 && y >= sy - 8 && y <= sy + sh + 8
+          ? { x, y }
+          : null;
+    };
+
+    const onPointerLeave = () => {
+      S.aim = null;
+    };
+
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault();
@@ -812,8 +890,10 @@ export default function SlabRite({
     resize();
     document.addEventListener("visibilitychange", onVis);
     wrap.addEventListener("pointerdown", onPointerDown);
+    wrap.addEventListener("pointermove", onPointerMove);
+    wrap.addEventListener("pointerleave", onPointerLeave);
     wrap.addEventListener("keydown", onKeyDown);
-    wrap.style.cursor = "pointer";
+    wrap.style.cursor = "crosshair";
 
     if (rmRef.current) render();
     else start();
@@ -824,6 +904,8 @@ export default function SlabRite({
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVis);
       wrap.removeEventListener("pointerdown", onPointerDown);
+      wrap.removeEventListener("pointermove", onPointerMove);
+      wrap.removeEventListener("pointerleave", onPointerLeave);
       wrap.removeEventListener("keydown", onKeyDown);
     };
     // mount-once by design; live values flow through refs

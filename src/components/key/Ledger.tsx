@@ -54,7 +54,7 @@ export default function Ledger({ onClaim }: Props) {
           {BRAND.emailHook}
         </h2>
         <p
-          className="mt-4 text-center text-sm italic"
+          className="mt-4 text-balance text-center text-sm italic"
           style={{ fontFamily: "var(--font-crimson)", color: "#9a93a6" }}
         >
           The key is cut. The ledger asks two things, then the deed is yours.

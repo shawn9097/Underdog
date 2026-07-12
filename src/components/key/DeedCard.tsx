@@ -125,10 +125,11 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
     ctx.restore();
   }
 
-  // kintsugi veins from two corners — the brand signature
+  // kintsugi veins hugging the margins — the brand signature, kept clear
+  // of the title block and the footer text
   const veinRng = mulberry32(fnv1a(claim.deedId));
-  drawKintsugiVein(ctx, veinRng, 52, 140, 0.5, 260);
-  drawKintsugiVein(ctx, veinRng, W - 52, H - 170, Math.PI + 0.4, 300);
+  drawKintsugiVein(ctx, veinRng, 60, 96, 1.15, 300);
+  drawKintsugiVein(ctx, veinRng, W - 60, H - 130, Math.PI + 1.15, 320);
 
   const center = (
     text: string,
@@ -194,7 +195,8 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
   ctx.restore();
 
   center(claim.deedId, 758, `44px ${mono}`, "#f5c84c", 10);
-  center("FRACTURE SEED " + seedHex(claim.seed), 800, `18px ${mono}`, "#6f6879", 4);
+  center("FRACTURE SEED " + seedHex(claim.seed), 800, `18px ${mono}`, "#8a8494", 4);
+  center("BITTING " + claim.bitting.join(" · "), 832, `15px ${mono}`, "#6f6879", 4);
 
   // registry rows
   const rows: Array<[string, string]> = [
@@ -277,6 +279,7 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
 export default function DeedCard({ claim, onReset }: Props) {
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [showBitting, setShowBitting] = useState(false);
 
   useEffect(() => {
     setDaysLeft(Math.ceil(msUntilRelease(Date.now()) / 86_400_000));
@@ -325,7 +328,7 @@ export default function DeedCard({ claim, onReset }: Props) {
         )}
 
         <p
-          className="text-center text-[0.6rem] tracking-[0.42em]"
+          className="text-center text-[0.55rem] tracking-[0.28em] sm:text-[0.6rem] sm:tracking-[0.42em]"
           style={{ fontFamily: "var(--font-geist-mono)", color: "#8a6a1f" }}
         >
           UNDERDOG CITY — THE SPRAWL BELOW
@@ -340,12 +343,31 @@ export default function DeedCard({ claim, onReset }: Props) {
 
         {hairline}
 
-        <KeyGlyph
-          bitting={claim.bitting}
-          seed={claim.seed}
-          title={`Key ${claim.deedId}, cut from fracture seed ${seedHex(claim.seed)}`}
-          className="mx-auto h-44 w-44 sm:h-52 sm:w-52"
-        />
+        {/* the key holds a secret: its six cut depths, shown on hover/tap */}
+        <button
+          type="button"
+          onClick={() => setShowBitting((v) => !v)}
+          aria-expanded={showBitting}
+          aria-label={`${showBitting ? "Hide" : "Reveal"} the bitting cuts of key ${claim.deedId}`}
+          className="group mx-auto block cursor-pointer rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-[#d4a72c] focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a080d]"
+          style={{ background: "transparent", border: "none", padding: 0 }}
+        >
+          <KeyGlyph
+            bitting={claim.bitting}
+            seed={claim.seed}
+            title={`Key ${claim.deedId}, cut from fracture seed ${seedHex(claim.seed)}`}
+            className="h-44 w-44 transition-transform duration-500 group-hover:scale-[1.03] sm:h-52 sm:w-52"
+          />
+          <span
+            aria-hidden="true"
+            className={`block min-h-4 text-center text-[0.6rem] tracking-[0.3em] transition-opacity duration-700 ${
+              showBitting ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+            style={{ fontFamily: "var(--font-geist-mono)", color: "#d4a72c" }}
+          >
+            BITTING {claim.bitting.join(" · ")}
+          </span>
+        </button>
 
         <p
           className="mt-4 text-center text-xl tracking-[0.22em] sm:text-2xl"
@@ -355,7 +377,7 @@ export default function DeedCard({ claim, onReset }: Props) {
         </p>
         <p
           className="mt-1 text-center text-[0.62rem] tracking-[0.24em]"
-          style={{ fontFamily: "var(--font-geist-mono)", color: "#6f6879" }}
+          style={{ fontFamily: "var(--font-geist-mono)", color: "#8a8494" }}
         >
           FRACTURE SEED {seedHex(claim.seed)}
         </p>
@@ -377,7 +399,7 @@ export default function DeedCard({ claim, onReset }: Props) {
                 {label}
               </dt>
               <dd
-                className="mt-1.5 break-words text-xl font-bold tracking-wide sm:text-2xl"
+                className="mt-1.5 break-words text-lg font-bold tracking-wide sm:text-2xl"
                 style={{ fontFamily: "var(--font-big-shoulders)", color: "#e8e2d6" }}
               >
                 {value}
@@ -407,7 +429,10 @@ export default function DeedCard({ claim, onReset }: Props) {
           className="text-center text-[0.66rem] leading-loose tracking-[0.18em]"
           style={{ fontFamily: "var(--font-geist-mono)", color: "#9a93a6" }}
         >
-          {BRAND.album.toUpperCase()} — 14 TRACKS — {BRAND.label.toUpperCase()}
+          {BRAND.album.toUpperCase()} — 14 TRACKS
+          <span className="hidden sm:inline"> — </span>
+          <br className="sm:hidden" />
+          {BRAND.label.toUpperCase()}
           <br />
           <span style={{ color: "#d4a72c" }}>
             DOORS OPEN {BRAND.releaseDateDisplay}

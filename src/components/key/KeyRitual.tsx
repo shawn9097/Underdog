@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
-import { BRAND } from "@/lib/album";
+import { BRAND, WORLD } from "@/lib/album";
 import Embers from "./Embers";
 import SlabRite from "./SlabRite";
 import Ledger from "./Ledger";
@@ -35,6 +35,12 @@ const ACTS = [
   { n: "II", label: "THE GILDING" },
   { n: "III", label: "THE TENANCY" },
 ] as const;
+
+/** Marginalia inscriptions, sliced verbatim from canon. */
+const RAIL_DROP = WORLD.drop.description;
+const RAIL_WEAPON = WORLD.kintsugi.rule.slice(
+  WORLD.kintsugi.rule.indexOf("Your damage")
+);
 
 export default function KeyRitual() {
   const [phase, setPhase] = useState<Phase>("boot");
@@ -97,9 +103,11 @@ export default function KeyRitual() {
         { autoAlpha: 0, y: 28 },
         { autoAlpha: 1, y: 0, duration: rm ? 0.01 : 1.1, ease: "power2.out", delay: rm ? 0 : 0.2 }
       );
+      // align the ledger's foot with the viewport so the freshly cut key
+      // stays visible above it — the reward presides over the signing
       ledgerRef.current.scrollIntoView({
         behavior: rm ? "auto" : "smooth",
-        block: "center",
+        block: "end",
       });
     }
     if (phase === "deed" && deedRef.current) {
@@ -233,10 +241,80 @@ export default function KeyRitual() {
         />
       </svg>
 
+      {/* ceremonial marginalia — canon inscriptions witnessing the rite */}
+      <aside
+        aria-hidden="true"
+        className="pointer-events-none fixed left-6 top-1/2 z-[2] hidden -translate-y-1/2 flex-col items-center gap-3 [@media(min-width:1280px)_and_(min-height:640px)]:flex"
+      >
+        <span
+          className="block h-1.5 w-1.5 rotate-45 transition-colors duration-1000"
+          style={{ background: act === 1 ? "#d4a72c" : "#3a3542" }}
+        />
+        <span
+          className="block h-10 w-px"
+          style={{
+            background: "linear-gradient(180deg, transparent, rgba(138,106,31,0.55))",
+          }}
+        />
+        <p
+          className="rotate-180 text-[0.55rem] uppercase leading-none tracking-[0.34em] transition-colors duration-1000 [writing-mode:vertical-rl]"
+          style={{
+            fontFamily: "var(--font-geist-mono)",
+            color: act === 1 ? "#8a6a1f" : "#4a4453",
+          }}
+        >
+          {RAIL_DROP}
+        </p>
+        <span
+          className="block h-10 w-px"
+          style={{
+            background: "linear-gradient(0deg, transparent, rgba(138,106,31,0.55))",
+          }}
+        />
+        <span
+          className="block h-1.5 w-1.5 rotate-45 transition-colors duration-1000"
+          style={{ background: act === 1 ? "#d4a72c" : "#3a3542" }}
+        />
+      </aside>
+      <aside
+        aria-hidden="true"
+        className="pointer-events-none fixed right-6 top-1/2 z-[2] hidden -translate-y-1/2 flex-col items-center gap-3 [@media(min-width:1280px)_and_(min-height:640px)]:flex"
+      >
+        <span
+          className="block h-1.5 w-1.5 rotate-45 transition-colors duration-1000"
+          style={{ background: act >= 2 ? "#d4a72c" : "#3a3542" }}
+        />
+        <span
+          className="block h-10 w-px"
+          style={{
+            background: "linear-gradient(180deg, transparent, rgba(138,106,31,0.55))",
+          }}
+        />
+        <p
+          className="text-[0.55rem] uppercase leading-none tracking-[0.34em] transition-colors duration-1000 [writing-mode:vertical-rl]"
+          style={{
+            fontFamily: "var(--font-geist-mono)",
+            color: act >= 2 ? "#8a6a1f" : "#4a4453",
+          }}
+        >
+          {RAIL_WEAPON}
+        </p>
+        <span
+          className="block h-10 w-px"
+          style={{
+            background: "linear-gradient(0deg, transparent, rgba(138,106,31,0.55))",
+          }}
+        />
+        <span
+          className="block h-1.5 w-1.5 rotate-45 transition-colors duration-1000"
+          style={{ background: act >= 2 ? "#d4a72c" : "#3a3542" }}
+        />
+      </aside>
+
       {/* ------------------------------------------------ header */}
       <header className="relative z-10 px-4 pt-10 text-center sm:pt-14">
         <p
-          className="text-[0.6rem] tracking-[0.5em]"
+          className="text-[0.6rem] tracking-[0.32em] sm:tracking-[0.5em]"
           style={{ fontFamily: "var(--font-geist-mono)", color: "#8a6a1f" }}
         >
           UNDERDOG CITY — RITE OF TENANCY
@@ -270,14 +348,15 @@ export default function KeyRitual() {
               className="flex items-center gap-3 sm:gap-5"
               style={{ color: act >= i + 1 ? "#d4a72c" : "#57505f" }}
             >
-              <span>
-                {a.n} · {a.label}
-              </span>
-              {i < ACTS.length - 1 && (
+              {/* separator leads the item so a wrapped line never ends on a dangling dash */}
+              {i > 0 && (
                 <span aria-hidden style={{ color: "#3a3542" }}>
                   —
                 </span>
               )}
+              <span>
+                {a.n} · {a.label}
+              </span>
             </li>
           ))}
         </ol>
@@ -291,7 +370,7 @@ export default function KeyRitual() {
         {showStage && (
           <>
             <div
-              className={`w-full ${
+              className={`mt-3 w-full ${
                 phase === "ledger"
                   ? "h-[min(38vh,340px)] min-h-[240px]"
                   : "h-[min(58vh,540px)] min-h-[340px]"
@@ -348,7 +427,7 @@ export default function KeyRitual() {
         <p
           ref={whisperRef}
           aria-live="polite"
-          className="mt-6 min-h-14 max-w-xl text-balance px-2 text-center text-lg italic leading-relaxed sm:text-xl"
+          className="mt-6 min-h-[4.5rem] max-w-xl text-balance px-2 text-center text-lg italic leading-relaxed sm:text-xl"
           style={{ fontFamily: "var(--font-crimson)", color: "#c9c2d0" }}
         >
           {whisper}
@@ -387,7 +466,10 @@ export default function KeyRitual() {
           className="text-[0.62rem] leading-loose tracking-[0.24em]"
           style={{ fontFamily: "var(--font-geist-mono)", color: "#6f6879" }}
         >
-          {BRAND.album.toUpperCase()} — 14 TRACKS — {BRAND.label.toUpperCase()} —{" "}
+          {BRAND.album.toUpperCase()} — 14 TRACKS
+          <span className="hidden sm:inline"> — </span>
+          <br className="sm:hidden" />
+          {BRAND.label.toUpperCase()} —{" "}
           <span style={{ color: "#8a6a1f" }}>OUT {BRAND.releaseDateDisplay}</span>
         </p>
         <p
