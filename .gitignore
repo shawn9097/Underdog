@@ -9,3 +9,8 @@ Thumbs.db
 
 # TODO: add language/tool ignores as the project grows
 # (e.g. node_modules/, __pycache__/, target/, dist/, .env)
+node_modules/
+.next/
+shots/
+*.tsbuildinfo
+next-env.d.ts
