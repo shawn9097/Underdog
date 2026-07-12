@@ -1,0 +1,852 @@
+/* ================================================================
+   THE SIGNAL — pirate broadcast console.
+   Phosphor bent from CRT green toward the brand's kintsugi gold.
+   Everything scoped under .sig-root.
+   ================================================================ */
+
+.sig-root {
+  --phos: #cdc158;
+  --phos-bright: #f0e793;
+  --phos-dim: #6f682c;
+  --phos-faint: rgba(205, 193, 88, 0.12);
+  --phos-line: rgba(205, 193, 88, 0.22);
+
+  position: relative;
+  min-height: 100dvh;
+  background: radial-gradient(130% 100% at 50% -10%, #0c0b08 0%, var(--void) 55%);
+  color: var(--phos);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  overflow-x: clip;
+  padding: 0 0 6rem;
+}
+
+/* -------- utilities -------- */
+.sig-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sig-root button:focus-visible,
+.sig-root a:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: 2px;
+}
+
+/* -------- CRT furniture -------- */
+.sig-scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.24) 0 1px,
+    transparent 1px 3px
+  );
+  opacity: 0.8;
+  animation: sig-flick 7s steps(14) infinite;
+}
+
+.sig-scanbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 16vh;
+  z-index: 71;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(240, 231, 147, 0.05),
+    transparent
+  );
+  animation: sig-scan 9s linear infinite;
+}
+
+.sig-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 72;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 115% 90% at 50% 45%,
+    transparent 58%,
+    rgba(0, 0, 0, 0.52) 100%
+  );
+}
+
+.sig-glitch {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 47, 126, 0.13) 0 2px,
+      transparent 2px 7px
+    ),
+    linear-gradient(90deg, rgba(255, 47, 126, 0.06), rgba(41, 224, 212, 0.05));
+  mix-blend-mode: screen;
+}
+.sig-glitch.on {
+  opacity: 1;
+  animation: sig-jitter 0.4s steps(7) 1;
+}
+
+.sig-kintsugi {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: min(72vh, 640px);
+  width: auto;
+  z-index: 1;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sig-margin {
+  position: fixed;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  color: var(--phos-dim);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.sig-txtag {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  color: var(--phos-dim);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* -------- header -------- */
+.sig-head {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding: 0.55rem 1.25rem 0.5rem;
+  background: rgba(6, 5, 7, 0.94);
+  border-bottom: 1px solid var(--phos-line);
+  backdrop-filter: blur(4px);
+}
+
+.sig-head-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sig-brand {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.sig-brand-name {
+  font-family: var(--font-silkscreen), monospace;
+  font-size: 0.95rem;
+  color: var(--gold-hot);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 14px rgba(245, 200, 76, 0.35);
+  white-space: nowrap;
+}
+.sig-brand-sub {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--phos-dim);
+}
+
+.sig-head-mid {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.sig-tune {
+  min-width: 9.5rem;
+  font-family: var(--font-tektur), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--phos-bright);
+  text-align: right;
+}
+.sig-tune.deny {
+  color: var(--blood-bright);
+}
+
+.sig-meter {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 18px;
+}
+.sig-meter b {
+  width: 5px;
+  display: block;
+  background: rgba(205, 193, 88, 0.18);
+}
+.sig-meter b.on {
+  background: var(--gold-hot);
+  box-shadow: 0 0 6px rgba(245, 200, 76, 0.6);
+}
+
+.sig-clock {
+  font-family: var(--font-tektur), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--phos);
+}
+
+.sig-audio {
+  min-height: 40px;
+  padding: 0.35rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--phos-line);
+  color: var(--phos);
+  font: inherit;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.sig-audio:hover {
+  border-color: var(--gold);
+  color: var(--gold-hot);
+}
+.sig-audio .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--smoke);
+}
+.sig-audio[aria-pressed="true"] {
+  border-color: var(--gold);
+  color: var(--gold-hot);
+  box-shadow: inset 0 0 12px rgba(212, 167, 44, 0.16);
+}
+.sig-audio[aria-pressed="true"] .dot {
+  background: var(--gold-hot);
+  box-shadow: 0 0 8px var(--gold-hot);
+  animation: sig-pulse 1.6s ease-in-out infinite;
+}
+
+/* -------- ticker -------- */
+.sig-ticker {
+  overflow: hidden;
+  border-top: 1px solid rgba(205, 193, 88, 0.16);
+  margin-top: 0.5rem;
+  padding-top: 0.35rem;
+  width: 100%;
+}
+.sig-ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: sig-crawl 55s linear infinite;
+  will-change: transform;
+}
+.sig-ticker-copy {
+  display: inline-flex;
+  align-items: baseline;
+}
+.sig-ticker-copy > span {
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  color: var(--phos);
+  text-transform: uppercase;
+  padding-right: 2.6rem;
+}
+.sig-ticker-copy i {
+  font-style: normal;
+  color: var(--gold);
+  padding-right: 2.6rem;
+}
+
+/* -------- layout -------- */
+.sig-main {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1.75rem;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 0;
+  align-items: start;
+}
+
+.sig-stage {
+  min-width: 0;
+}
+
+/* -------- channel dial -------- */
+.sig-dial {
+  position: sticky;
+  top: 6.6rem;
+}
+.sig-dial-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: var(--phos-dim);
+  border-bottom: 1px dashed var(--phos-line);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.sig-dial ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sig-ch {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3.4rem 3.2rem minmax(0, 1fr) 0.8rem;
+  gap: 0.55rem;
+  align-items: baseline;
+  min-height: 42px;
+  padding: 0.48rem 0.6rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-left: 2px solid transparent;
+  color: var(--phos);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 130ms ease, border-color 130ms ease, color 130ms ease;
+}
+.sig-ch:hover {
+  background: var(--phos-faint);
+  color: var(--phos-bright);
+}
+.sig-ch[aria-pressed="true"] {
+  border-color: rgba(212, 167, 44, 0.5);
+  border-left-color: var(--gold-hot);
+  background: linear-gradient(
+    90deg,
+    rgba(212, 167, 44, 0.16),
+    rgba(212, 167, 44, 0.02)
+  );
+  color: var(--gold-white);
+}
+.sig-ch .n {
+  font-family: var(--font-tektur), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+.sig-ch .f {
+  font-family: var(--font-tektur), monospace;
+  font-size: 0.7rem;
+  color: var(--phos-dim);
+}
+.sig-ch[aria-pressed="true"] .f {
+  color: var(--gold);
+}
+.sig-ch .t {
+  font-size: 0.73rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sig-ch .lock {
+  font-size: 0.6rem;
+  color: var(--gold-hot);
+}
+
+.sig-ghost-sep {
+  margin: 0.9rem 0 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  color: var(--blood-bright);
+  opacity: 0.85;
+}
+.sig-ghost-sep::after {
+  content: "";
+  flex: 1;
+  border-top: 1px dashed rgba(217, 43, 63, 0.4);
+}
+.sig-ch.ghost {
+  color: rgba(217, 43, 63, 0.75);
+}
+.sig-ch.ghost .f,
+.sig-ch.ghost .n {
+  color: rgba(217, 43, 63, 0.55);
+}
+.sig-ch.ghost:hover {
+  background: rgba(142, 29, 44, 0.12);
+  color: var(--blood-bright);
+}
+.sig-ch.ghost[aria-pressed="true"] {
+  border-color: rgba(217, 43, 63, 0.45);
+  border-left-color: var(--blood-bright);
+  background: rgba(142, 29, 44, 0.14);
+  color: var(--blood-bright);
+}
+.sig-ch.ghost[aria-pressed="true"] .f,
+.sig-ch.ghost[aria-pressed="true"] .n {
+  color: var(--blood-bright);
+}
+.sig-ch.ghost .lock {
+  color: var(--blood-bright);
+}
+
+.sig-dial-hint {
+  margin: 0.85rem 0 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  color: var(--phos-dim);
+}
+
+/* -------- channel card -------- */
+.sig-card {
+  position: relative;
+  border: 1px solid var(--phos-line);
+  background: linear-gradient(
+    180deg,
+    rgba(14, 12, 17, 0.65),
+    rgba(6, 5, 7, 0.35)
+  );
+  padding: 1.4rem 1.6rem 1.6rem;
+}
+
+.sig-c {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--gold);
+}
+.sig-c.tl { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+.sig-c.tr { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; }
+.sig-c.bl { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; }
+.sig-c.br { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+.sig-card.is-ghost .sig-c { border-color: var(--blood); }
+
+.sig-trace-wrap {
+  position: relative;
+  border: 1px solid var(--phos-line);
+  background: rgba(4, 4, 5, 0.7);
+  margin-bottom: 1.2rem;
+}
+.sig-trace {
+  display: block;
+  width: 100%;
+  height: clamp(150px, 24vh, 220px);
+}
+.sig-trace-tag {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.6rem;
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  color: var(--phos-dim);
+}
+.sig-trace-tag.right {
+  left: auto;
+  right: 0.6rem;
+}
+
+.sig-readout {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+.sig-freq {
+  font-family: var(--font-tektur), monospace;
+  font-weight: 500;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--gold-hot);
+  text-shadow: 0 0 26px rgba(245, 200, 76, 0.35);
+}
+.sig-freq small {
+  font-size: 0.3em;
+  color: var(--gold-dim);
+  letter-spacing: 0.3em;
+  margin-left: 0.5rem;
+}
+.sig-card.is-ghost .sig-freq {
+  color: var(--blood-bright);
+  text-shadow: 0 0 22px rgba(217, 43, 63, 0.35);
+}
+.sig-readout-meta {
+  display: grid;
+  gap: 0.15rem;
+  text-align: right;
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  color: var(--phos-dim);
+}
+.sig-readout-meta b {
+  color: var(--phos);
+  font-weight: 400;
+}
+
+.sig-title {
+  font-family: var(--font-silkscreen), monospace;
+  font-size: clamp(1.15rem, 2.6vw, 1.85rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-white);
+  text-shadow: 0 0 18px rgba(255, 233, 168, 0.25);
+  margin: 0.45rem 0 0.4rem;
+}
+.sig-card.is-ghost .sig-title {
+  color: var(--blood-bright);
+  text-shadow: 0 0 16px rgba(217, 43, 63, 0.3);
+}
+
+.sig-hook {
+  margin: 0 0 0.9rem;
+  font-style: italic;
+  color: var(--phos);
+  opacity: 0.88;
+}
+.sig-hook::before {
+  content: "≫ ";
+  font-style: normal;
+  color: var(--gold);
+}
+.sig-card.is-ghost .sig-hook::before {
+  color: var(--blood-bright);
+}
+
+.sig-note {
+  margin: 0 0 0.6rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--phos-dim);
+}
+
+.sig-seam {
+  display: block;
+  width: 100%;
+  height: 16px;
+  margin: 0.2rem 0 1.2rem;
+}
+
+.sig-sec-h {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  font-family: var(--font-pixelify), monospace;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.sig-sec-h::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--phos-line);
+}
+.sig-sec-h .cnt {
+  font-family: var(--font-tektur), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--phos-dim);
+  white-space: nowrap;
+}
+.sig-card.is-ghost .sig-sec-h .cnt {
+  color: rgba(217, 43, 63, 0.7);
+}
+.sig-card.is-ghost .sig-sec-h {
+  color: var(--blood-bright);
+}
+.sig-card.is-ghost .sig-sec-h::after {
+  border-color: rgba(217, 43, 63, 0.3);
+}
+
+.sig-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1.4rem;
+  padding: 0;
+}
+.sig-chips li {
+  border: 1px solid rgba(205, 193, 88, 0.28);
+  background: rgba(205, 193, 88, 0.05);
+  padding: 0.16rem 0.55rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--phos);
+}
+
+.sig-null {
+  margin: 0 0 1.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: rgba(217, 43, 63, 0.85);
+}
+
+.sig-lines {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+.sig-lines li {
+  display: grid;
+  grid-template-columns: 2.2rem minmax(0, 1fr);
+  gap: 0.8rem;
+  padding: 0.34rem 0;
+  border-bottom: 1px dotted rgba(205, 193, 88, 0.14);
+  font-size: 0.85rem;
+  color: var(--phos-bright);
+  min-height: 2em;
+}
+.sig-lines .ln {
+  color: var(--phos-dim);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  padding-top: 0.22em;
+}
+.sig-card.is-ghost .sig-lines li {
+  color: rgba(217, 43, 63, 0.9);
+  border-color: rgba(217, 43, 63, 0.2);
+}
+
+.sig-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.18em;
+  background: var(--gold-hot);
+  animation: sig-blink 0.9s steps(2) infinite;
+}
+.sig-card.is-ghost .sig-cursor {
+  background: var(--blood-bright);
+}
+
+/* -------- CTA -------- */
+.sig-cta {
+  display: block;
+  border: 1px solid rgba(212, 167, 44, 0.45);
+  background: rgba(212, 167, 44, 0.07);
+  padding: 0.95rem 1.1rem;
+  text-decoration: none;
+  color: var(--gold-white);
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.sig-cta:hover {
+  background: rgba(212, 167, 44, 0.14);
+  border-color: var(--gold-hot);
+  box-shadow:
+    0 0 24px rgba(212, 167, 44, 0.18),
+    inset 0 0 18px rgba(212, 167, 44, 0.08);
+}
+.sig-cta-tag {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  color: var(--gold);
+}
+.sig-cta-body {
+  font-family: var(--font-silkscreen), monospace;
+  font-size: clamp(0.78rem, 1.6vw, 0.98rem);
+  letter-spacing: 0.05em;
+}
+.sig-cta .arr {
+  color: var(--gold-hot);
+}
+
+/* -------- boot overlay -------- */
+.sig-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.3) 0 1px,
+      transparent 1px 3px
+    ),
+    radial-gradient(120% 100% at 50% 30%, #0a0908, #040305 70%);
+  color: var(--phos);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  text-align: left;
+  cursor: pointer;
+}
+.sig-boot-inner {
+  display: block;
+  width: min(600px, 92vw);
+}
+.sig-boot-line {
+  display: block;
+  margin: 0 0 0.45rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  color: var(--phos);
+}
+.sig-boot-line.big {
+  font-family: var(--font-silkscreen), monospace;
+  font-size: clamp(1rem, 3vw, 1.55rem);
+  color: var(--gold-hot);
+  text-shadow: 0 0 22px rgba(245, 200, 76, 0.4);
+  margin-top: 0.9rem;
+}
+.sig-boot-line.loud {
+  font-family: var(--font-silkscreen), monospace;
+  font-size: clamp(0.78rem, 2vw, 1rem);
+  color: var(--gold-white);
+  margin-top: 0.7rem;
+}
+.sig-boot-skip {
+  display: block;
+  margin-top: 1.6rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  color: var(--phos-dim);
+  animation: sig-blink 1.4s steps(2) infinite;
+}
+
+/* -------- keyframes -------- */
+@keyframes sig-crawl {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes sig-scan {
+  from { transform: translateY(-25vh); }
+  to { transform: translateY(115vh); }
+}
+@keyframes sig-flick {
+  0%, 100% { opacity: 0.8; }
+  8% { opacity: 0.74; }
+  10% { opacity: 0.82; }
+  46% { opacity: 0.77; }
+  50% { opacity: 0.8; }
+  82% { opacity: 0.75; }
+}
+@keyframes sig-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes sig-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.75); opacity: 0.6; }
+}
+@keyframes sig-jitter {
+  0% { transform: translateX(0); }
+  18% { transform: translateX(-7px); }
+  36% { transform: translateX(6px); }
+  54% { transform: translateX(-3px); }
+  72% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+/* -------- responsive -------- */
+@media (max-width: 1200px) {
+  .sig-margin,
+  .sig-txtag {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .sig-root {
+    padding-bottom: 6.5rem;
+  }
+  .sig-main {
+    grid-template-columns: 1fr;
+    padding: 1rem 0.9rem 0;
+    gap: 1.1rem;
+  }
+  .sig-dial {
+    position: static;
+  }
+  .sig-dial ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    gap: 0.35rem;
+  }
+  .sig-ch {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+    min-height: 44px;
+    align-items: center;
+    border: 1px solid rgba(205, 193, 88, 0.16);
+    border-left: 2px solid transparent;
+  }
+  .sig-ch .f,
+  .sig-ch .lock {
+    display: none;
+  }
+  .sig-kintsugi {
+    height: 38vh;
+    opacity: 0.35;
+  }
+  .sig-head {
+    padding: 0.5rem 0.75rem 0.45rem;
+  }
+  .sig-head-mid {
+    gap: 0.7rem;
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .sig-tune {
+    text-align: left;
+    min-width: 0;
+  }
+  .sig-clock {
+    display: none;
+  }
+  .sig-card {
+    padding: 1rem 0.9rem 1.1rem;
+  }
+  .sig-readout-meta {
+    text-align: left;
+  }
+  .sig-trace-tag.right {
+    display: none;
+  }
+}
