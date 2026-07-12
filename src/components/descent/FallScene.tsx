@@ -106,7 +106,9 @@ function DebrisLayer({
     const mesh = ref.current;
     if (!mesh) return;
     const target = debrisFade(state) * baseOpacity;
-    mat.opacity += (target - mat.opacity) * 0.1;
+    // fade out hard once the impact kills the field (low-FPS safe)
+    mat.opacity += (target - mat.opacity) * (target < 0.02 ? 0.32 : 0.1);
+    if (target < 0.001 && mat.opacity < 0.02) mat.opacity = 0;
     mesh.visible = mat.opacity > 0.012;
     if (!mesh.visible) return;
     mat.color.lerpColors(colA, colB, clamp01((state.fall - 0.04) * 4));
@@ -176,7 +178,8 @@ function SpeedLines({
     const mesh = ref.current;
     if (!mesh) return;
     const target = debrisFade(state) * shared.vel * 0.55;
-    mat.opacity += (target - mat.opacity) * 0.16;
+    mat.opacity += (target - mat.opacity) * (target < 0.02 ? 0.34 : 0.16);
+    if (target < 0.001 && mat.opacity < 0.02) mat.opacity = 0;
     mesh.visible = mat.opacity > 0.01;
     if (!mesh.visible) return;
     const rise = state.fall * 2.4 * span;

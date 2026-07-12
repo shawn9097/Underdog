@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
 import { BRAND, msUntilRelease } from "@/lib/album";
 
 const MONO = { fontFamily: "var(--font-geist-mono)" } as const;
@@ -33,12 +34,35 @@ function compute(): Parts {
  */
 export default function Countdown() {
   const [p, setP] = useState<Parts | null>(null);
+  const secRef = useRef<HTMLDivElement>(null);
+  const reducedRef = useRef(false);
 
   useEffect(() => {
+    reducedRef.current = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
     setP(compute());
     const id = setInterval(() => setP(compute()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  // each second the last cell gilds for a beat — the clock is alive
+  useEffect(() => {
+    if (!p || p.out || reducedRef.current || !secRef.current) return;
+    const tween = gsap.fromTo(
+      secRef.current,
+      { color: "#ffe9a8", textShadow: "0 0 18px rgba(245,200,76,0.85)" },
+      {
+        color: "#f5c84c",
+        textShadow: "0 0 0px rgba(245,200,76,0)",
+        duration: 0.55,
+        ease: "power2.out",
+      }
+    );
+    return () => {
+      tween.kill();
+    };
+  }, [p]);
 
   if (p?.out) {
     return (
@@ -71,6 +95,7 @@ export default function Countdown() {
           className="min-w-[4.6rem] border border-[#2a2531] bg-[rgba(14,12,17,0.72)] px-2 py-3 sm:min-w-[6rem] sm:py-4"
         >
           <div
+            ref={l === "SECONDS" ? secRef : undefined}
             className="text-[clamp(1.7rem,4.5vw,2.8rem)] leading-none text-[var(--gold-hot)] tabular-nums"
             style={{ fontFamily: "var(--font-tektur)", fontWeight: 500 }}
           >

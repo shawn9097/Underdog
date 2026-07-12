@@ -48,26 +48,30 @@ export default function TrackLadder() {
                 {String(t.n).padStart(2, "0")}
               </span>
               <span
-                className={`flex-1 uppercase leading-[0.95] tracking-[0.02em] text-[clamp(1.55rem,3.6vw,2.5rem)] transition-colors duration-200 ${
+                className={`flex-1 uppercase leading-[0.95] tracking-[0.02em] text-[clamp(1.55rem,3.6vw,2.5rem)] transition-[color,transform] duration-200 ${
                   isOpen
-                    ? "text-[var(--gold-hot)]"
-                    : "text-[var(--bone)] group-hover:text-[var(--gold-white)]"
+                    ? "translate-x-1.5 text-[var(--gold-hot)] sm:translate-x-2"
+                    : "text-[var(--bone)] group-hover:translate-x-1.5 group-hover:text-[var(--gold-white)] sm:group-hover:translate-x-2"
                 }`}
                 style={SHOULDERS}
               >
                 {t.title}
               </span>
-              {t.bpm ? (
-                <span
-                  className="hidden text-[0.6rem] tracking-[0.2em] text-[#57505f] sm:inline"
-                  style={MONO}
-                >
-                  {t.bpm} BPM
-                </span>
-              ) : null}
+              <span
+                className={`hidden w-16 text-right text-[0.6rem] tracking-[0.2em] tabular-nums transition-colors duration-200 sm:inline ${
+                  isOpen ? "text-[var(--gold-dim)]" : "text-[#57505f]"
+                }`}
+                style={MONO}
+              >
+                {t.bpm ? `${t.bpm} BPM` : ""}
+              </span>
               <span
                 aria-hidden="true"
-                className="text-sm text-[var(--gold-dim)]"
+                className={`text-sm transition-colors duration-200 ${
+                  isOpen
+                    ? "text-[var(--gold-hot)]"
+                    : "text-[var(--gold-dim)] group-hover:text-[var(--gold-hot)]"
+                }`}
                 style={MONO}
               >
                 {isOpen ? "—" : "+"}

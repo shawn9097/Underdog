@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { BRAND, WORLD } from "@/lib/album";
 import KintsugiCrack from "./KintsugiCrack";
 import Skyline from "./Skyline";
@@ -33,6 +36,60 @@ const GOLD_TEXT = {
 /* ------------------------------------------------------------------ */
 /* 1 · THE HALO                                                        */
 /* ------------------------------------------------------------------ */
+
+/**
+ * The Halo's judgment — and a hidden act of defiance. Click the stamp
+ * and the verdict is overturned from below for a few seconds:
+ * "Long live the underdog" (Throne at the Bottom, verbatim).
+ */
+function VerdictStamp() {
+  const [overturned, setOverturned] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    []
+  );
+
+  const flip = () => {
+    if (timer.current) clearTimeout(timer.current);
+    setOverturned((v) => {
+      if (!v) timer.current = setTimeout(() => setOverturned(false), 3200);
+      return !v;
+    });
+  };
+
+  return (
+    <div className="verdict-slam">
+      <button
+        type="button"
+        onClick={flip}
+        aria-pressed={overturned}
+        aria-label="Overturn the verdict"
+        className="cursor-pointer border-2 px-6 py-4 focus-visible:outline-2 focus-visible:outline-offset-4 sm:px-8"
+        style={{
+          ...MONO,
+          borderColor: overturned ? "var(--gold)" : "var(--blood-bright)",
+          color: overturned ? "var(--gold-dim)" : "var(--blood-bright)",
+          outlineColor: overturned ? "var(--gold)" : "var(--blood-bright)",
+          transform: overturned ? "rotate(2deg) scale(1.04)" : "rotate(-3deg)",
+          transition:
+            "transform 220ms cubic-bezier(0.34,1.56,0.64,1), border-color 220ms ease, color 220ms ease",
+        }}
+      >
+        <p className="text-sm font-bold tracking-[0.28em] sm:text-base">
+          {overturned ? "VERDICT · OVERTURNED" : "VERDICT · WORTHLESS"}
+        </p>
+        <p className="mt-1 text-[0.62rem] tracking-[0.3em]">
+          {overturned ? "LONG LIVE THE UNDERDOG" : "SENTENCE · THE DROP"}
+        </p>
+      </button>
+    </div>
+  );
+}
+
 export function HaloSection() {
   return (
     <section
@@ -83,7 +140,7 @@ export function HaloSection() {
               THE HALO
             </h1>
             <p
-              className="max-w-xs text-[0.85rem] text-[#4c5560] sm:max-w-sm sm:text-base"
+              className="max-w-xs text-balance text-[0.85rem] text-[#4c5560] sm:max-w-sm sm:text-base"
               style={SANS}
             >
               {WORLD.halo.description}
@@ -100,21 +157,7 @@ export function HaloSection() {
           when they&rsquo;ve decided a problem&rsquo;s been solved.&rdquo;
         </blockquote>
 
-        <div
-          className="verdict-stamp -rotate-3 border-2 px-6 py-4 sm:px-8"
-          style={{
-            ...MONO,
-            borderColor: "var(--blood-bright)",
-            color: "var(--blood-bright)",
-          }}
-        >
-          <p className="text-sm font-bold tracking-[0.28em] sm:text-base">
-            VERDICT · WORTHLESS
-          </p>
-          <p className="mt-1 text-[0.62rem] tracking-[0.3em]">
-            SENTENCE · THE DROP
-          </p>
-        </div>
+        <VerdictStamp />
 
         <p
           className="max-w-sm text-[0.66rem] uppercase leading-relaxed tracking-[0.18em] text-[#828c98]"
@@ -142,7 +185,7 @@ export function HaloSection() {
 /* ------------------------------------------------------------------ */
 const FALL_QUOTES = [
   {
-    top: "20%",
+    top: "23%",
     side: "left" as const,
     text: "The corridor lights slide from gold to white to gone.",
   },
@@ -176,7 +219,7 @@ export function FallSection() {
             &ldquo;{q.text}&rdquo;
           </blockquote>
           <figcaption
-            className="mt-3 text-[0.6rem] tracking-[0.4em] text-[#57505f]"
+            className="mt-3 text-[0.6rem] tracking-[0.4em] text-[#6f6880]"
             style={MONO}
           >
             — THE PROLOGUE
@@ -184,12 +227,12 @@ export function FallSection() {
         </figure>
       ))}
       <div
-        className="absolute left-1/2 w-max"
+        className="absolute left-1/2 flex w-full justify-center px-8"
         style={{ top: "89%", transform: "translateX(-50%)" }}
       >
         <Link
           href="/prologue"
-          className="fall-q block border border-[#2a2531] bg-[rgba(6,5,7,0.85)] px-6 py-3.5 text-[0.62rem] tracking-[0.3em] text-[#a9a2b3] transition-colors duration-200 hover:border-[var(--gold-dim)] hover:text-[var(--gold-hot)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold-hot)]"
+          className="fall-q block border border-[#2a2531] bg-[rgba(6,5,7,0.85)] px-5 py-3.5 text-center text-[0.62rem] tracking-[0.22em] text-[#a9a2b3] transition-colors duration-200 hover:border-[var(--gold-dim)] hover:text-[var(--gold-hot)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gold-hot)] sm:px-6 sm:tracking-[0.3em]"
           style={MONO}
         >
           READ THE PROLOGUE · CAME BACK WRONG →
@@ -231,7 +274,11 @@ export function ImpactSection() {
         <div className="relative z-10 max-w-3xl px-6 text-center">
           <p
             className="impact-line text-[0.62rem] tracking-[0.45em] text-[var(--gold-dim)]"
-            style={MONO}
+            style={{
+              ...MONO,
+              textShadow:
+                "0 0 6px rgba(6,5,7,0.95), 0 0 14px rgba(6,5,7,0.8)",
+            }}
           >
             LV -0060 · ABSOLUTE BOTTOM
           </p>
@@ -365,7 +412,7 @@ export function CitySection() {
         className="pointer-events-none absolute bottom-0 left-0 h-[52vh] w-[68%]"
         style={{
           background:
-            "radial-gradient(ellipse at 22% 100%, rgba(255,47,126,0.22) 0%, rgba(255,47,126,0) 62%)",
+            "radial-gradient(ellipse at 22% 100%, rgba(255,47,126,0.3) 0%, rgba(255,47,126,0) 62%)",
         }}
       />
       <div
@@ -373,7 +420,7 @@ export function CitySection() {
         className="pointer-events-none absolute bottom-0 right-0 h-[52vh] w-[68%]"
         style={{
           background:
-            "radial-gradient(ellipse at 78% 100%, rgba(41,224,212,0.2) 0%, rgba(41,224,212,0) 62%)",
+            "radial-gradient(ellipse at 78% 100%, rgba(41,224,212,0.28) 0%, rgba(41,224,212,0) 62%)",
         }}
       />
       <Skyline />
@@ -492,14 +539,14 @@ export function ThroneSection() {
             Now accepting tenants.
           </p>
           <p
-            className="text-[0.58rem] leading-relaxed tracking-[0.32em] text-[#57505f]"
+            className="text-balance text-[0.58rem] leading-relaxed tracking-[0.22em] text-[#57505f] sm:tracking-[0.32em]"
             style={MONO}
           >
             {BRAND.album.toUpperCase()} · OUT {BRAND.releaseDateDisplay} ·{" "}
             {BRAND.label.toUpperCase()}
           </p>
           <p
-            className="text-[0.58rem] tracking-[0.32em] text-[#57505f]"
+            className="text-balance text-[0.58rem] tracking-[0.22em] text-[#57505f] sm:tracking-[0.32em]"
             style={MONO}
           >
             FOR THE UNDERDOGS · WE ALL RULE DOWN HERE.

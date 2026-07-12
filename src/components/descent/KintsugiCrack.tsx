@@ -66,6 +66,7 @@ const CRACKS = generate();
 export default function KintsugiCrack() {
   return (
     <svg
+      id="kintsugi-svg"
       className="absolute inset-0 h-full w-full"
       viewBox="0 0 1000 1120"
       preserveAspectRatio="xMidYMid slice"
@@ -91,6 +92,15 @@ export default function KintsugiCrack() {
           <stop offset="1" stopColor="rgba(6,5,7,0)" />
         </radialGradient>
       </defs>
+      {/* molten pool beneath the fracture — floods in with the gold */}
+      <rect
+        id="kpool-fill"
+        x="0"
+        y="0"
+        width="1000"
+        height="1120"
+        fill="url(#kpool)"
+      />
       <g fill="none" strokeLinecap="round" strokeLinejoin="round">
         <g>
           {CRACKS.glows.map((c, i) => (
@@ -99,8 +109,8 @@ export default function KintsugiCrack() {
               className="crack-glow"
               d={c.d}
               stroke="#d4a72c"
-              strokeOpacity={0.15}
-              strokeWidth={c.w * 4.6}
+              strokeOpacity={0.24}
+              strokeWidth={c.w * 5.4}
             />
           ))}
         </g>

@@ -50,7 +50,7 @@ function layer(
     buildings.push({ x, w, h });
     const top = H - h;
     const cols = Math.max(1, Math.floor(w / 14));
-    const n = Math.floor(rnd() * winPer);
+    const n = 1 + Math.floor(rnd() * winPer);
     for (let i = 0; i < n; i++) {
       const wx = x + 4 + Math.floor(rnd() * cols) * 14;
       const wy = top + 8 + rnd() * (h - 26);
@@ -78,9 +78,9 @@ function layer(
   return { buildings, wins, sp };
 }
 
-const FAR = layer(11, 70, 170, 34, 78, 3, false);
-const MID = layer(23, 110, 245, 40, 92, 5, true);
-const NEAR = layer(47, 150, 320, 52, 120, 9, true);
+const FAR = layer(11, 70, 170, 34, 78, 6, false);
+const MID = layer(23, 110, 245, 40, 92, 9, true);
+const NEAR = layer(47, 150, 320, 52, 120, 15, true);
 
 function Layer({
   id,
@@ -146,6 +146,16 @@ export default function Skyline() {
         preserveAspectRatio="xMidYMax slice"
         className="block h-[44vh] min-h-[280px] w-full"
       >
+        <defs>
+          {/* light pollution rising off the districts */}
+          <linearGradient id="sky-smog" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="rgba(139,92,246,0)" />
+            <stop offset="0.55" stopColor="rgba(255,47,126,0.07)" />
+            <stop offset="0.82" stopColor="rgba(255,47,126,0.16)" />
+            <stop offset="1" stopColor="rgba(139,92,246,0.24)" />
+          </linearGradient>
+        </defs>
+        <rect x="0" y="40" width="1440" height={H - 40} fill="url(#sky-smog)" />
         <Layer id="sky-far" data={FAR} fill="#17121e" winScale={0.7} />
         <Layer id="sky-mid" data={MID} fill="#0d0a12" winScale={0.85} />
         <Layer id="sky-near" data={NEAR} fill="#060508" winScale={1} />

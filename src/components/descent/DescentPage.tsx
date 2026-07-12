@@ -30,6 +30,7 @@ export default function DescentPage() {
   const meterNumRef = useRef<HTMLSpanElement>(null);
   const meterDotRef = useRef<HTMLDivElement>(null);
   const meterBottomRef = useRef<HTMLSpanElement>(null);
+  const meterBraceRef = useRef<HTMLSpanElement>(null);
   const stateRef = useRef(createDescentState());
 
   useEffect(() => {
@@ -82,7 +83,20 @@ export default function DescentPage() {
           meterDotRef.current.style.transform = `translateY(${(p * 116).toFixed(1)}px)`;
         if (meterBottomRef.current)
           meterBottomRef.current.style.opacity = p >= 1 ? "1" : "0";
+        // last levels before the floor: the HUD starts screaming
+        if (meterBraceRef.current)
+          meterBraceRef.current.style.visibility =
+            p > 0.88 && p < 1 ? "visible" : "hidden";
       };
+      if (!reduced) {
+        gsap.to(meterBraceRef.current, {
+          opacity: 0.15,
+          duration: 0.42,
+          ease: "steps(1)",
+          yoyo: true,
+          repeat: -1,
+        });
+      }
       ScrollTrigger.create({
         trigger: "#fall",
         start: "top top",
@@ -145,7 +159,7 @@ export default function DescentPage() {
           stagger: 1.7,
         }
       );
-      gsap.from(".verdict-stamp", {
+      gsap.from(".verdict-slam", {
         scale: 1.7,
         autoAlpha: 0,
         rotate: 3,
@@ -189,6 +203,7 @@ export default function DescentPage() {
         p.style.strokeDashoffset = `${len}`;
       });
       gsap.set(".impact-line", { autoAlpha: 0, y: 44 });
+      gsap.set("#kpool-fill", { autoAlpha: 0 });
       gsap
         .timeline({
           scrollTrigger: {
@@ -210,45 +225,57 @@ export default function DescentPage() {
             duration: 0.06,
             ease: "none",
           },
-          0.02
+          0.01
+        )
+        // the fracture jumps out fast, then creeps — a crack propagates
+        .fromTo(
+          "#kintsugi-svg",
+          { scale: 0.92, transformOrigin: "50% 52%" },
+          { scale: 1, duration: 0.89, ease: "none" },
+          0.01
         )
         .to(
           cores,
           {
             strokeDashoffset: 0,
-            duration: 0.34,
-            ease: "power2.in",
-            stagger: 0.008,
+            duration: 0.4,
+            ease: "power3.out",
+            stagger: 0.009,
           },
-          0.06
+          0.03
         )
         .to(
           glows,
           {
             strokeDashoffset: 0,
-            duration: 0.3,
+            duration: 0.36,
             ease: "power1.inOut",
-            stagger: 0.007,
+            stagger: 0.008,
           },
-          0.3
+          0.12
+        )
+        .to(
+          "#kpool-fill",
+          { autoAlpha: 0.55, duration: 0.24, ease: "power1.in" },
+          0.38
         )
         .fromTo(
           "#impact-flash",
           { autoAlpha: 0 },
-          { autoAlpha: 0.9, duration: 0.08, ease: "power4.in" },
-          0.58
+          { autoAlpha: 0.95, duration: 0.06, ease: "power4.in" },
+          0.5
         )
-        .to("#impact-flash", { autoAlpha: 0.14, duration: 0.14 }, 0.68)
+        .to("#impact-flash", { autoAlpha: 0.05, duration: 0.12 }, 0.58)
         .to(
           ".impact-line",
           {
             autoAlpha: 1,
             y: 0,
-            duration: 0.12,
-            stagger: 0.055,
+            duration: 0.1,
+            stagger: 0.05,
             ease: "power2.out",
           },
-          0.6
+          0.52
         );
 
       /* ---------- CITY: skyline parallax + tenant sign flicker ---------- */
@@ -337,17 +364,28 @@ export default function DescentPage() {
         style={{ backgroundImage: GRAIN, opacity: 0.05 }}
       />
 
-      {/* depth meter — levels below the Halo */}
+      {/* depth meter — levels below the Halo. Hugs the right edge as a
+          vertical rail on small screens so it never collides with copy. */}
       <div
         aria-hidden="true"
-        className="fixed right-3 top-14 z-40 text-white mix-blend-difference sm:right-5 sm:top-1/2 sm:-translate-y-1/2"
+        className="fixed right-1 top-1/2 z-40 -translate-y-1/2 text-white mix-blend-difference sm:right-5"
         style={{ fontFamily: "var(--font-geist-mono)" }}
       >
-        <div className="flex flex-col items-end gap-2">
-          <span ref={meterNumRef} className="text-[0.68rem] tracking-[0.18em]">
+        <div className="flex flex-col items-center gap-2 sm:items-end">
+          <span
+            ref={meterNumRef}
+            className="text-[0.6rem] tracking-[0.18em] [writing-mode:vertical-rl] sm:text-[0.68rem] sm:[writing-mode:horizontal-tb]"
+          >
             LV -0000
           </span>
-          <div className="relative mr-[2px] hidden h-[120px] w-px self-end bg-white/40 sm:block">
+          <span
+            ref={meterBraceRef}
+            className="text-[0.6rem] font-bold tracking-[0.2em] [writing-mode:vertical-rl] sm:text-[0.62rem] sm:[writing-mode:horizontal-tb]"
+            style={{ visibility: "hidden" }}
+          >
+            ▼ BRACE
+          </span>
+          <div className="relative mr-0 hidden h-[120px] w-px self-end bg-white/40 sm:block">
             <div
               ref={meterDotRef}
               className="absolute -left-[2px] top-0 h-[5px] w-[5px] bg-white"
@@ -361,7 +399,7 @@ export default function DescentPage() {
           </span>
           <span
             ref={meterBottomRef}
-            className="text-[0.58rem] tracking-[0.25em]"
+            className="text-[0.56rem] tracking-[0.25em] [writing-mode:vertical-rl] sm:text-[0.58rem] sm:[writing-mode:horizontal-tb]"
             style={{ opacity: 0 }}
           >
             BOTTOM
