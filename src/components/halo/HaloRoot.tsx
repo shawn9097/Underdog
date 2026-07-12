@@ -11,11 +11,13 @@ import {
   useState,
 } from "react";
 import AscensionTiers from "./AscensionTiers";
+import AuditLedger from "./AuditLedger";
 import BellSection from "./BellSection";
 import CrackOverlay from "./CrackOverlay";
 import { DecayContext, Section, stageOf, type DecayApi } from "./decay";
 import { Doctrine, Footer, Hero, WorthHeader } from "./Sections";
 import { DropStamp, VoidScreen } from "./TheDrop";
+import TitleGlitch from "./TitleGlitch";
 import WorthAssessment from "./WorthAssessment";
 
 type DropPhase = "live" | "falling" | "void";
@@ -254,6 +256,8 @@ export default function HaloRoot() {
         <div className="hl-sky" aria-hidden="true" />
         <div className="hl-stains" aria-hidden="true" />
         <CrackOverlay />
+        <AuditLedger />
+        <TitleGlitch />
         <WorthHeader />
         <main className="hl-main" aria-hidden={phase === "void" ? true : undefined}>
           <Hero />

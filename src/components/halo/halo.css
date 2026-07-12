@@ -159,6 +159,72 @@
 .hl[data-stage="3"] .hl-cracks path { stroke-width: 1.8; }
 .hl[data-stage="3"] .hl-cracks .hl-crack-fine { stroke-width: 0.9; }
 
+/* ---------- the sainted audit ledger (marginalia HUD) ---------- */
+
+.hl-ledger {
+  position: fixed;
+  right: 1rem;
+  bottom: 1.1rem;
+  z-index: 30;
+  width: min(19rem, 32vw);
+  max-width: calc(100vw - 2rem);
+  pointer-events: none;
+  text-align: right;
+  font-family: var(--font-geist-mono), monospace;
+  mix-blend-mode: multiply;
+}
+.hl[data-stage="3"] .hl-ledger { mix-blend-mode: screen; }
+
+.hl-ledger-head {
+  margin: 0 0 0.5rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.3em;
+  color: var(--hl-accent);
+  opacity: 0.7;
+  transition: color 1.9s ease;
+}
+.hl-ledger ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+.hl-ledger-line {
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  animation: hl-ledger-in 0.5s ease both;
+}
+.hl-ledger-amt {
+  margin-right: 0.5rem;
+  color: var(--blood-bright);
+  font-variant-numeric: tabular-nums;
+}
+.hl-ledger-reason {
+  color: var(--hl-ink-soft);
+  transition: color 1.9s ease;
+}
+.hl-ledger-truth {
+  font-family: var(--font-crimson), serif;
+  font-style: italic;
+  font-size: 0.86rem;
+  letter-spacing: 0;
+  line-height: 1.35;
+  color: var(--gold-dim);
+}
+.hl[data-stage="3"] .hl-ledger-truth { color: var(--gold-hot); }
+
+@keyframes hl-ledger-in {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 640px) {
+  .hl-ledger { display: none; }
+}
+
 /* ---------- primitives ---------- */
 
 .hl-wrap {
@@ -206,6 +272,7 @@
   line-height: 1.05;
   letter-spacing: -0.01em;
   text-transform: uppercase;
+  text-wrap: balance;
   margin: 0.9rem 0 0;
 }
 
@@ -213,6 +280,7 @@
   max-width: 34rem;
   font-size: clamp(1rem, 1.4vw, 1.15rem);
   color: var(--hl-ink-soft);
+  text-wrap: pretty;
   transition: color 1.9s ease;
 }
 
@@ -320,7 +388,50 @@
     background-color 1.9s ease,
     border-color 1.9s ease,
     color 1.9s ease,
-    transform 0.35s ease;
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* blueprint corner registration ticks — the Sainted file everything */
+.hl-card::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 1.9s ease;
+  background:
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 0 0 / 11px 1px no-repeat,
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 0 0 / 1px 11px no-repeat,
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 100% 0 / 11px 1px no-repeat,
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 100% 0 / 1px 11px no-repeat,
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 0 100% / 11px 1px no-repeat,
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 0 100% / 1px 11px no-repeat,
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 100% 100% / 11px 1px no-repeat,
+    linear-gradient(var(--hl-card-line), var(--hl-card-line)) 100% 100% / 1px 11px no-repeat;
+}
+
+/* per-card kintsugi hairline — a gold seam that widens as worth is spent */
+.hl-card::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  height: 2px;
+  width: calc(16% + var(--hl-crack) * 84%);
+  background: linear-gradient(90deg, var(--gold-hot), var(--gold) 55%, transparent);
+  opacity: calc(0.3 + var(--hl-crack) * 0.7);
+  pointer-events: none;
+  transition: width 2.6s ease, opacity 2s ease;
+}
+
+@media (hover: hover) {
+  .hl-card[data-dwell]:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 42px 82px -42px var(--hl-glow);
+    border-color: color-mix(in srgb, var(--hl-card-line) 55%, var(--gold));
+  }
+  .hl-card[data-dwell]:hover::before { opacity: 0.85; }
 }
 
 /* reveal choreography — hidden state applied by JS only */
@@ -483,6 +594,85 @@
 .hl[data-stage="2"] .hl-sigil-ring,
 .hl[data-stage="3"] .hl-sigil-ring { stroke: var(--gold); }
 
+/* concentric measurement rings */
+.hl-sigil-inner {
+  fill: none;
+  stroke: var(--hl-line);
+  stroke-width: 1;
+  transition: stroke 1.9s ease;
+}
+.hl[data-stage="3"] .hl-sigil-inner { stroke: rgba(212, 167, 44, 0.28); }
+
+/* graduated tick ring — the Sainted measure precisely */
+.hl-sigil-ticks line {
+  stroke: var(--hl-accent);
+  stroke-width: 1;
+  opacity: 0.32;
+  transition: stroke 1.9s ease;
+}
+.hl-sigil-ticks line.is-major {
+  stroke-width: 1.5;
+  opacity: 0.62;
+}
+.hl[data-stage="2"] .hl-sigil-ticks line,
+.hl[data-stage="3"] .hl-sigil-ticks line { stroke: var(--gold); }
+
+/* center crosshair — the point of judgment */
+.hl-sigil-cross line {
+  stroke: var(--hl-accent);
+  stroke-width: 1;
+  opacity: 0.5;
+  transition: stroke 1.9s ease;
+}
+.hl-sigil-dot {
+  fill: var(--hl-accent);
+  transition: fill 1.9s ease;
+}
+.hl[data-stage="2"] .hl-sigil-cross line,
+.hl[data-stage="3"] .hl-sigil-cross line { stroke: var(--gold); }
+.hl[data-stage="2"] .hl-sigil-dot,
+.hl[data-stage="3"] .hl-sigil-dot { fill: var(--gold-hot); }
+
+/* kintsugi fractures across the sigil ring — revealed per decay stage */
+.hl-sigil-cracks path {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.4;
+  stroke-linejoin: bevel;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  opacity: 0;
+  transition: stroke-dashoffset 2.4s ease, opacity 1.6s ease;
+}
+.hl-sigil-cracks path.is-fine { stroke-width: 0.8; }
+.hl[data-stage="1"] .hl-sigil-cg1 path { stroke-dashoffset: 0; opacity: 0.8; }
+.hl[data-stage="2"] .hl-sigil-cg1 path,
+.hl[data-stage="2"] .hl-sigil-cg2 path { stroke-dashoffset: 0; opacity: 0.85; }
+.hl[data-stage="3"] .hl-sigil-cg1 path,
+.hl[data-stage="3"] .hl-sigil-cg2 path,
+.hl[data-stage="3"] .hl-sigil-cg3 path { stroke-dashoffset: 0; opacity: 0.95; }
+.hl[data-stage="3"] .hl-sigil-cracks {
+  filter: drop-shadow(0 0 4px rgba(212, 167, 44, 0.5));
+}
+
+/* per-click ripple pulse */
+.hl-sigil-pulse {
+  fill: none;
+  stroke: var(--hl-accent);
+  stroke-width: 1.5;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  opacity: 0;
+  animation: hl-sigil-pulse 1.1s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+}
+.hl[data-stage="2"] .hl-sigil-pulse,
+.hl[data-stage="3"] .hl-sigil-pulse { stroke: var(--gold-hot); }
+@keyframes hl-sigil-pulse {
+  0% { transform: scale(0.82); opacity: 0.7; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+
 .hl-sigil-arc {
   fill: none;
   stroke: var(--hl-accent);
@@ -594,6 +784,7 @@
   font-weight: 700;
   font-size: clamp(1.35rem, 2.6vw, 1.9rem);
   line-height: 1.2;
+  text-wrap: balance;
   margin: 0 0 1.8rem;
 }
 
@@ -851,6 +1042,7 @@
   margin: 0 auto 2.4rem;
   font-size: clamp(1.05rem, 1.8vw, 1.3rem);
   color: var(--hl-ink-soft);
+  text-wrap: balance;
   transition: color 1.9s ease;
 }
 .hl-foot-note {
@@ -1029,4 +1221,6 @@
   .hl-hero { padding-top: 5.5rem; }
   .hl-assess-answers .hl-btn { flex: 1 1 100%; }
   .hl-cta-row .hl-btn { flex: 1 1 100%; }
+  .hl-colophon { letter-spacing: 0.12em; text-wrap: balance; }
+  .hl-bell-next { letter-spacing: 0.14em; }
 }

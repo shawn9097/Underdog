@@ -9,6 +9,9 @@
 import { useEffect, useState } from "react";
 import { useDecay, useSectionSeen } from "./decay";
 
+/** The corruption only escalates from stage 1 upward. */
+type MinStage = 1 | 2 | 3;
+
 const GLITCH = "█▓▒░/¦×—∅";
 
 export function Corruptible({
@@ -73,7 +76,7 @@ export function TruthSwap({
 }: {
   lie: string;
   truth: string;
-  minStage?: Stage2;
+  minStage?: MinStage;
   className?: string;
 }) {
   const { stage, reduced, dropped } = useDecay();
@@ -117,5 +120,3 @@ export function TruthSwap({
     </span>
   );
 }
-
-type Stage2 = 1 | 2 | 3;

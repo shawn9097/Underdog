@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { msUntilRelease } from "@/lib/album";
 import { Corruptible, TruthSwap } from "./Corruptible";
 import { useDecay } from "./decay";
@@ -29,39 +29,51 @@ export default function BellSection() {
   const [ringing, setRinging] = useState(false);
   const [reported, setReported] = useState(false);
   const [left, setLeft] = useState<string | null>(null);
+  const ringOff = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // the bell rings on its own schedule
+  // a single tracked ring pulse (shared by the schedule + manual report)
+  const pulse = useCallback(() => {
+    setRinging(true);
+    if (ringOff.current) clearTimeout(ringOff.current);
+    ringOff.current = setTimeout(() => setRinging(false), 1300);
+  }, []);
+
+  // clear any pending ring-off on unmount
+  useEffect(
+    () => () => {
+      if (ringOff.current) clearTimeout(ringOff.current);
+    },
+    [],
+  );
+
+  // the bell rings on its own schedule — silenced once the visitor is Dropped
   useEffect(() => {
-    let ringOff: ReturnType<typeof setTimeout> | undefined;
+    if (dropped) return;
     const iv = setInterval(() => {
       if (document.hidden) return;
       setCount((c) => c + 1);
-      setRinging(true);
-      ringOff = setTimeout(() => setRinging(false), 1300);
+      pulse();
     }, 8000);
-    return () => {
-      clearInterval(iv);
-      if (ringOff) clearTimeout(ringOff);
-    };
-  }, []);
+    return () => clearInterval(iv);
+  }, [dropped, pulse]);
 
-  // countdown to the next citywide resolution (release day)
+  // countdown to the next citywide resolution (release day) — frozen at the Drop
   useEffect(() => {
+    if (dropped) return;
     const tick = () => setLeft(formatLeft(msUntilRelease(Date.now())));
     tick();
     const iv = setInterval(() => {
       if (!document.hidden) tick();
     }, 1000);
     return () => clearInterval(iv);
-  }, []);
+  }, [dropped]);
 
   const report = () => {
     if (dropped) return;
     spend(3);
     setCount((c) => c + 1);
-    setRinging(true);
     setReported(true);
-    setTimeout(() => setRinging(false), 1300);
+    pulse();
   };
 
   return (

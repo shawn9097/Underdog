@@ -53,15 +53,17 @@ export function WorthHeader() {
 /* ---------------- hero ---------------- */
 
 function StatsStrip() {
+  const { dropped } = useDecay();
   const [assessed, setAssessed] = useState(4_112_930);
   useEffect(() => {
+    if (dropped) return;
     const iv = setInterval(() => {
       if (!document.hidden) {
         setAssessed((a) => a + 1 + Math.floor(Math.random() * 3));
       }
     }, 5000);
     return () => clearInterval(iv);
-  }, []);
+  }, [dropped]);
 
   return (
     <div className="hl-wrap hl-stats" data-reveal>
@@ -151,7 +153,7 @@ export function Doctrine() {
           <p className="hl-micro">DOCTRINE</p>
           <h2 className="hl-h2">
             <TruthSwap
-              lie="Three promises, kept above."
+              lie={"Three promises, kept above."}
               truth="No saints, no savior, no grave."
               minStage={3}
             />
