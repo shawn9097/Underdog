@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { BRAND, CHAPTERS, msUntilRelease } from "@/lib/album";
-import { fetchTenantCount } from "@/lib/backend";
 import { MONO, SERIF_IT, SHOULDERS, TEKTUR } from "./voices";
 
 /**
@@ -205,50 +204,21 @@ function AlbumCountdown() {
 
 /* --------------------------------------------------------- the tenants */
 
-type TenantState =
-  | { s: "loading" }
-  | { s: "ok"; n: number }
-  | { s: "open" };
+type TenantState = { s: "ok"; n: number } | { s: "open" };
 
 function Tenants({ initialCount }: { initialCount: number | null }) {
-  // Seed from the server read when we have it — the number paints instantly
-  // and the browser makes no cross-origin call. Only fetch after mount when
-  // the server handed us nothing (its read was slow or unreachable).
-  const [state, setState] = useState<TenantState>(
-    initialCount != null ? { s: "ok", n: initialCount } : { s: "loading" }
-  );
-
-  useEffect(() => {
-    if (initialCount != null) return;
-    let on = true;
-    fetchTenantCount()
-      .then((n) => {
-        if (!on) return;
-        const num = Number(n);
-        setState(
-          Number.isFinite(num) && num > 0 ? { s: "ok", n: num } : { s: "open" }
-        );
-      })
-      .catch(() => {
-        if (on) setState({ s: "open" });
-      });
-    return () => {
-      on = false;
-    };
-  }, [initialCount]);
+  // The count is server truth (seeded by the page's server read). When the
+  // server hands us nothing — or the ledger is genuinely empty — we show the
+  // honest open-ledger state instead of firing a browser call on page load.
+  const state: TenantState =
+    initialCount != null && initialCount > 0
+      ? { s: "ok", n: initialCount }
+      : { s: "open" };
 
   return (
     <article className="rise-in">
       <Label>THE TENANTS</Label>
       <div aria-live="polite" className="mt-4 min-h-[4.6rem]">
-        {state.s === "loading" ? (
-          <p
-            className="text-[0.62rem] tracking-[0.3em] text-[#57505f]"
-            style={MONO}
-          >
-            COUNTING THE KEYS&hellip;
-          </p>
-        ) : null}
         {state.s === "ok" ? (
           <>
             <p
