@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Renders one PROLOGUE paragraph with its assigned cinematic treatment.
- * Text is always real, selectable DOM (verbatim from PROLOGUE). Where letters
- * are split for animation, the paragraph carries an aria-label with the full
- * text so screen readers still read the sentence intact.
+ * Renders one chapter paragraph with its assigned cinematic treatment.
+ * Text is always real, selectable DOM (verbatim from @/lib/album). Where
+ * letters are split for animation, the paragraph carries an aria-label with
+ * the full text so screen readers still read the sentence intact.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +14,7 @@ import type { BeatDef } from "./beats";
 function letters(text: string, cls: string) {
   return Array.from(text).map((ch, k) => (
     <span key={k} className={cls} aria-hidden="true">
-      {ch === " " ? " " : ch}
+      {ch === " " ? " " : ch}
     </span>
   ));
 }
