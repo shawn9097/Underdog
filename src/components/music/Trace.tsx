@@ -6,20 +6,24 @@ import { mulberry32 } from "./data";
 interface Props {
   seed: number;
   bpm?: number;
-  ghost: boolean;
-  /** Bumped on every retune — restarts the static-resolve envelope. */
-  tuneStamp: number;
+  /** Hot state — the reel is actually turning on the deck. */
+  live?: boolean;
   reduced: boolean;
   label: string;
+  /** Compact traces skip the static-resolve burst and draw dimmer. */
+  compact?: boolean;
 }
 
 /**
- * Procedural oscilloscope trace — a deterministic visual fingerprint seeded
- * from track number + BPM + title characters. NOT audio playback.
- * Canvas 2D, dpr capped at 2, rAF paused when the tab is hidden.
+ * Master trace — the deterministic oscilloscope fingerprint each track has
+ * carried since THE SIGNAL era, reframed as the archive's seismograph of the
+ * song. Procedural visualization, NOT audio playback. Canvas 2D, dpr capped
+ * at 2, rAF paused when the tab is hidden.
  */
-export default function SignalTrace({ seed, bpm, ghost, tuneStamp, reduced, label }: Props) {
+export default function Trace({ seed, bpm, live = false, reduced, label, compact = false }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const liveRef = useRef(live);
+  liveRef.current = live;
 
   useEffect(() => {
     const cv = ref.current;
@@ -39,7 +43,6 @@ export default function SignalTrace({ seed, bpm, ghost, tuneStamp, reduced, labe
     };
     resize();
 
-    // --- deterministic fingerprint ---
     const rand = mulberry32(seed);
     const harmonics = Array.from({ length: 6 }, (_, i) => ({
       f: 1 + Math.floor(rand() * 5) + i * 2,
@@ -73,27 +76,29 @@ export default function SignalTrace({ seed, bpm, ghost, tuneStamp, reduced, labe
       const w = cv.width / dpr;
       const h = cv.height / dpr;
       const mid = h / 2;
+      const hot = liveRef.current;
       ctx.clearRect(0, 0, w, h);
 
-      // graticule — blood-tinted on the ghost carrier, phosphor gold otherwise
-      ctx.strokeStyle = ghost ? "rgba(217,43,63,0.14)" : "rgba(205,193,88,0.10)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, mid);
-      ctx.lineTo(w, mid);
-      ctx.stroke();
-      ctx.fillStyle = ghost ? "rgba(217,43,63,0.2)" : "rgba(205,193,88,0.16)";
-      for (let x = 0; x < w; x += 36) ctx.fillRect(x, mid - 3, 1, 6);
+      if (!compact) {
+        ctx.strokeStyle = "rgba(212,167,44,0.10)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, mid);
+        ctx.lineTo(w, mid);
+        ctx.stroke();
+        ctx.fillStyle = "rgba(212,167,44,0.16)";
+        for (let x = 0; x < w; x += 36) ctx.fillRect(x, mid - 3, 1, 6);
+      }
 
-      const env = ghost ? 1 : reduced ? 0 : Math.max(0, 1 - (t - burstStart) / 620);
-      const phase = reduced ? 0 : t * 0.0016 * speed;
-      const amp = h * 0.3;
+      const env = compact || reduced ? 0 : Math.max(0, 1 - (t - burstStart) / 620);
+      const phase = reduced ? 0 : t * 0.0016 * speed * (hot ? 1.5 : 1);
+      const amp = h * (compact ? 0.34 : 0.3);
 
       const line = (color: string, off: number, alpha: number, blur: number, glow: string) => {
         ctx.save();
         ctx.globalAlpha = alpha;
         ctx.strokeStyle = color;
-        ctx.lineWidth = 1.6;
+        ctx.lineWidth = compact ? 1.2 : 1.6;
         if (blur > 0) {
           ctx.shadowColor = glow;
           ctx.shadowBlur = blur;
@@ -111,17 +116,15 @@ export default function SignalTrace({ seed, bpm, ghost, tuneStamp, reduced, labe
         ctx.restore();
       };
 
-      if (ghost) {
-        line("rgba(217,43,63,0.55)", 3, 0.5, 0, "");
-        line("rgba(217,43,63,0.95)", 0, 0.85, 7, "rgba(217,43,63,0.8)");
+      if (compact) {
+        line(hot ? "#f5c84c" : "rgba(212,167,44,0.75)", 0, hot ? 1 : 0.8, hot ? 6 : 0, "rgba(245,200,76,0.7)");
       } else {
-        line("rgba(205,193,88,0.4)", 4, 0.55, 0, "");
-        line("#f4ec9d", 0, 1, 9, "rgba(212,167,44,0.85)");
+        line("rgba(212,167,44,0.4)", 4, 0.55, 0, "");
+        line(hot ? "#ffe9a8" : "#f4ec9d", 0, 1, hot ? 12 : 9, "rgba(212,167,44,0.85)");
       }
 
-      // magenta interference slices while the static resolves
       if (env > 0.05 && !reduced) {
-        ctx.fillStyle = "rgba(255,47,126,0.22)";
+        ctx.fillStyle = "rgba(255,47,126,0.18)";
         for (let i = 0; i < 3; i++) {
           ctx.fillRect(0, Math.random() * h, w, 1 + Math.random() * 2.5 * env);
         }
@@ -164,14 +167,14 @@ export default function SignalTrace({ seed, bpm, ghost, tuneStamp, reduced, labe
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [seed, bpm, ghost, tuneStamp, reduced]);
+  }, [seed, bpm, reduced, compact]);
 
   return (
     <canvas
       ref={ref}
-      className="sig-trace"
+      className={compact ? "mu-trace mu-trace-compact" : "mu-trace"}
       role="img"
-      aria-label={`Signal trace fingerprint for ${label} — procedural visualization, not audio playback`}
+      aria-label={`Master trace fingerprint for ${label} — procedural visualization, not audio playback`}
     />
   );
 }
