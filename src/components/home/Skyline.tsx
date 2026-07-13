@@ -1,11 +1,21 @@
-import { mulberry32 } from "./state";
+import { CSSProperties } from "react";
 
 /**
- * Procedural neon-and-garbage skyline of Underdog City.
- * Three silhouette layers (parallaxed by the scroll scrub in DescentPage)
- * with lit windows in district-neon colors. Deterministic generation —
- * identical markup on server and client.
+ * Procedural neon-and-garbage skyline — carried over from the descent,
+ * stripped of its parallax hooks. Deterministic generation: identical
+ * markup on server and client.
  */
+
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 interface Building {
   x: number;
@@ -83,18 +93,16 @@ const MID = layer(23, 110, 245, 40, 92, 9, true);
 const NEAR = layer(47, 150, 320, 52, 120, 15, true);
 
 function Layer({
-  id,
   data,
   fill,
   winScale,
 }: {
-  id: string;
   data: ReturnType<typeof layer>;
   fill: string;
   winScale: number;
 }) {
   return (
-    <g id={id}>
+    <g>
       {data.buildings.map((b, i) => (
         <rect
           key={`b${i}`}
@@ -138,27 +146,27 @@ function Layer({
   );
 }
 
-export default function Skyline() {
+export default function Skyline({ style }: { style?: CSSProperties }) {
   return (
-    <div className="relative w-full" aria-hidden="true">
+    <div className="relative w-full" aria-hidden="true" style={style}>
       <svg
         viewBox={`0 0 1440 ${H}`}
         preserveAspectRatio="xMidYMax slice"
-        className="block h-[44vh] min-h-[280px] w-full"
+        className="block h-[26vh] min-h-[200px] w-full"
       >
         <defs>
           {/* light pollution rising off the districts */}
-          <linearGradient id="sky-smog" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="udcf-smog" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="rgba(139,92,246,0)" />
             <stop offset="0.55" stopColor="rgba(255,47,126,0.07)" />
             <stop offset="0.82" stopColor="rgba(255,47,126,0.16)" />
             <stop offset="1" stopColor="rgba(139,92,246,0.24)" />
           </linearGradient>
         </defs>
-        <rect x="0" y="40" width="1440" height={H - 40} fill="url(#sky-smog)" />
-        <Layer id="sky-far" data={FAR} fill="#17121e" winScale={0.7} />
-        <Layer id="sky-mid" data={MID} fill="#0d0a12" winScale={0.85} />
-        <Layer id="sky-near" data={NEAR} fill="#060508" winScale={1} />
+        <rect x="0" y="40" width="1440" height={H - 40} fill="url(#udcf-smog)" />
+        <Layer data={FAR} fill="#17121e" winScale={0.7} />
+        <Layer data={MID} fill="#0d0a12" winScale={0.85} />
+        <Layer data={NEAR} fill="#060508" winScale={1} />
       </svg>
     </div>
   );
