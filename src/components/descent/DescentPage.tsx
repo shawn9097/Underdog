@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import CityNav from "@/components/CityNav";
 import { createDescentState } from "./state";
 import {
   HaloSection,
@@ -407,7 +406,6 @@ export default function DescentPage() {
         </div>
       </div>
 
-      <CityNav />
     </div>
   );
 }

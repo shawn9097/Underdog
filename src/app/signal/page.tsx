@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import CityNav from "@/components/CityNav";
 import SignalConsole from "@/components/signal/SignalConsole";
 import { BRAND } from "@/lib/album";
 
@@ -12,7 +11,6 @@ export default function Page() {
   return (
     <>
       <SignalConsole />
-      <CityNav />
     </>
   );
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import CityNav from "@/components/CityNav";
 import KeyRitual from "@/components/key/KeyRitual";
 import { BRAND, WORLD } from "@/lib/album";
 
@@ -12,7 +11,6 @@ export default function Page() {
   return (
     <>
       <KeyRitual />
-      <CityNav />
     </>
   );
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import CityNav from "@/components/CityNav";
 import PrologueRoot from "@/components/prologue/PrologueRoot";
 import { BRAND, TRACKS } from "@/lib/album";
 
@@ -14,7 +13,6 @@ export default function Page() {
   return (
     <>
       <PrologueRoot />
-      <CityNav />
     </>
   );
 }

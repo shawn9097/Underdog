@@ -16,6 +16,7 @@ import {
   ericaOne,
 } from "@/lib/fonts";
 import { BRAND } from "@/lib/album";
+import CityNav from "@/components/CityNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -61,7 +62,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={fontVars}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <CityNav />
+      </body>
     </html>
   );
 }

@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const SURFACES = [
-  { href: "/", label: "THE DESCENT", glyph: "▼" },
-  { href: "/signal", label: "THE SIGNAL", glyph: "◍" },
-  { href: "/key", label: "CLAIM YOUR KEY", glyph: "⚿" },
-  { href: "/halo", label: "THE HALO", glyph: "◯" },
-  { href: "/prologue", label: "CAME BACK WRONG", glyph: "✝" },
+  { href: "/", label: "THE CITY", glyph: "▼" },
+  { href: "/serial", label: "THE SERIAL", glyph: "✝" },
+  { href: "/music", label: "THE MUSIC", glyph: "◍" },
+  { href: "/community", label: "THE COMMUNITY", glyph: "⚿" },
+  { href: "/halo", label: "THE HALO · LORE", glyph: "◯" },
 ];
 
 /**
@@ -103,7 +103,8 @@ export default function CityNav() {
         }}
       >
         {SURFACES.map((s) => {
-          const active = pathname === s.href;
+          const active =
+            s.href === "/" ? pathname === "/" : pathname.startsWith(s.href);
           return (
             <li key={s.href}>
               <Link

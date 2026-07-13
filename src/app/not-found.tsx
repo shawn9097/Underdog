@@ -1,5 +1,4 @@
 import Link from "next/link";
-import CityNav from "@/components/CityNav";
 
 export default function NotFound() {
   return (
@@ -64,7 +63,6 @@ export default function NotFound() {
       >
         ▼ RETURN TO THE DROP
       </Link>
-      <CityNav />
     </main>
   );
 }

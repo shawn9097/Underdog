@@ -327,3 +327,133 @@ export const PROLOGUE: string[] = [
 export function msUntilRelease(now: number): number {
   return new Date(BRAND.releaseDateISO).getTime() - now;
 }
+
+/** Real outbound links supplied by the artist. Never invent entries here. */
+export const LINKS = {
+  /** DistroKid HyperFollow — presave / notify for the album. */
+  presave: "https://distrokid.com/hyperfollow/underdogcity/throne-at-the-bottom/",
+} as const;
+
+export const SOCIALS = [
+  { name: "YouTube", handle: "@underdogcity", url: "https://youtube.com/@underdogcity" },
+  { name: "TikTok", handle: "@underdog.city", url: "https://www.tiktok.com/@underdog.city" },
+  {
+    name: "Instagram",
+    handle: "@underdogcitymusic",
+    url: "https://www.instagram.com/underdogcitymusic",
+  },
+  {
+    name: "Facebook",
+    handle: "Underdog City",
+    url: "https://www.facebook.com/share/19KPHvgWcZ/",
+  },
+] as const;
+
+/**
+ * Authored one-line arc tie-ins connecting each track to the story world.
+ * Derived from each track's canon role/hook/lyrics + the brief's beats —
+ * creative connective tissue, not new lore.
+ */
+export const TRACK_ARCS: Record<string, string> = {
+  villain:
+    "The acceptance. The city already wrote him down as the monster — this is him sitting for the portrait.",
+  "down-here":
+    "The anthem of the sprawl. Rock bottom renamed as a throne, by the Dropped who learned to breathe there.",
+  "who-tf":
+    "Territory. A house built with two hands out of everything the Halo threw away — and defended.",
+  chaos:
+    "The storm given a place to live. What the Halo calls a breakdown is how the bottom breathes.",
+  "stupid-little-bitch":
+    "A kiss-off from the wreckage — the rage that outlives a love that wanted you buried.",
+  "lights-go-low":
+    "The counter-gospel. Someone comes down from the Halo with clean hands, and the dark makes its offer.",
+  "no-saints":
+    "Salvation refused. The Sainted send a preacher to the gutter; the gutter sends him home.",
+  "upbeat-gospel":
+    "Pain spun into performance — throwing a party in the wreckage so the shadows have something to watch.",
+  "the-old-song":
+    "The lone outsider under a single streetlight, at war with the thoughts that never get along.",
+  "the-truth":
+    "The confession thread. The truth nails him to the floor — and a white lie might be the only way out.",
+  "parasitic-love":
+    "Toxic devotion — kept alive and left to die by the same hands.",
+  "came-back-wrong":
+    "The origin. Chapter Zero — death at the bottom, and what climbed back out of it.",
+  "throne-at-the-bottom":
+    "The claim. King of the orphans, landlord of the discarded — a throne built exactly where they threw him.",
+  "apathy-vs-agony":
+    "The cost. Numbness is the real enemy down here; the hurt is proof he still feels.",
+};
+
+export interface Chapter {
+  n: number;
+  title: string;
+  slug: string;
+  status: "live" | "forthcoming";
+  /** Chapter 0's teaser is its verbatim opening line; forthcoming teasers are spoiler-safe summaries of documented beats. */
+  teaser: string;
+  /** Track that scores this chapter, when the tie is canon-strong. */
+  trackSlug?: string;
+}
+
+/**
+ * The Serial. Chapter 0 is the locked prologue (PROLOGUE above), live now.
+ * Forthcoming chapters are seeded from the brief's documented story beats —
+ * no dates are promised until real ones exist.
+ */
+export const CHAPTERS: Chapter[] = [
+  {
+    n: 0,
+    title: "Came Back Wrong",
+    slug: "came-back-wrong",
+    status: "live",
+    teaser:
+      "I've got maybe a minute of blood left in me, and I'm going to waste it on a lie.",
+    trackSlug: "came-back-wrong",
+  },
+  {
+    n: 1,
+    title: "The Bell",
+    slug: "the-bell",
+    status: "forthcoming",
+    teaser:
+      "High above the sprawl, the Halo rings its victory bell — clean, bright, and celebrating the wrong man.",
+    trackSlug: "villain",
+  },
+  {
+    n: 2,
+    title: "Now Accepting Tenants",
+    slug: "now-accepting-tenants",
+    status: "forthcoming",
+    teaser:
+      "The landlord-king of misfits opens his doors: the unwanted get a home, a crown, and exactly one rule.",
+    trackSlug: "throne-at-the-bottom",
+  },
+  {
+    n: 3,
+    title: "The Empty Hand",
+    slug: "the-empty-hand",
+    status: "forthcoming",
+    teaser:
+      "Something was pressed into his hand before the dark took him. It mattered more than dying. It's gone.",
+    trackSlug: "the-truth",
+  },
+  {
+    n: 4,
+    title: "The Thread",
+    slug: "the-thread",
+    status: "forthcoming",
+    teaser:
+      "Down from the Halo, not a true believer — she was handed the villain's story and told to believe it. She keeps pulling at the one thread that doesn't fit.",
+    trackSlug: "lights-go-low",
+  },
+  {
+    n: 5,
+    title: "The Unmasking",
+    slug: "the-unmasking",
+    status: "forthcoming",
+    teaser:
+      "A mask comes off — not as proof of innocence, but as an act of trust with no safety net.",
+    trackSlug: "apathy-vs-agony",
+  },
+];

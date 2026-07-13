@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import CityNav from "@/components/CityNav";
 import HaloRoot from "@/components/halo/HaloRoot";
 
 export const metadata: Metadata = {
@@ -12,7 +11,6 @@ export default function Page() {
   return (
     <>
       <HaloRoot />
-      <CityNav />
     </>
   );
 }
