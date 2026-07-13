@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#060507"/>
+  <!-- broken crown, reforged: jagged, asymmetric -->
+  <path d="M4 24 L4 13 L9 17 L12 7 L15 14 L16.5 12.5 L20 6 L23 16 L28 11 L28 24 Z" fill="#d4a72c"/>
+  <!-- kintsugi fracture through the crown, lit hot -->
+  <path d="M15 14 L16.5 12.5 M14 24 L15.5 19 L14.5 16.5 L16.5 12.5" stroke="#060507" stroke-width="1.6" fill="none"/>
+  <path d="M14 24 L15.5 19 L14.5 16.5 L16.5 12.5 L17.5 10.5" stroke="#ffe9a8" stroke-width="0.7" fill="none"/>
+  <!-- gold dust settling -->
+  <circle cx="8" cy="27.5" r="0.8" fill="#8a6a1f"/>
+  <circle cx="16" cy="28" r="1" fill="#d4a72c"/>
+  <circle cx="24" cy="27.5" r="0.8" fill="#8a6a1f"/>
+</svg>

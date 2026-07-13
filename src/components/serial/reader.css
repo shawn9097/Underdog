@@ -1,0 +1,1061 @@
+/*
+ * THE SERIAL — chapter reader kinetic cinema styles.
+ *
+ * Scoped under .pl. Reading comfort is the first priority: CrimsonPro body at
+ * a ~65ch measure, immaculate rag. Effects are secondary and never leave text
+ * permanently hidden — initial hidden states are applied by JS (gsap.set) and
+ * gated on reduced-motion, so CSS here keeps everything legible by default.
+ */
+
+.pl {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--font-crimson), Georgia, "Times New Roman", serif;
+  --pl-rail: 4.5rem;
+  --pl-measure: 34rem;
+  --pl-gap: 1.6rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Fixed atmosphere layers
+ * ------------------------------------------------------------------ */
+
+.pl-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  will-change: opacity;
+}
+
+/* Warm dying-gold corridor: blood-warm floor glow + deep vignette. */
+.pl-corridor {
+  background:
+    radial-gradient(
+      120% 86% at 50% 40%,
+      rgba(212, 167, 44, 0.17),
+      rgba(142, 29, 44, 0.11) 38%,
+      rgba(6, 5, 7, 0) 66%
+    ),
+    radial-gradient(
+      150% 62% at 50% 112%,
+      rgba(142, 29, 44, 0.32),
+      rgba(6, 5, 7, 0) 58%
+    ),
+    radial-gradient(
+      100% 100% at 50% 46%,
+      rgba(6, 5, 7, 0) 52%,
+      rgba(6, 5, 7, 0.92) 100%
+    );
+}
+
+/* The fade wash: gold-white → white. Driven 0→1→0 by scroll. */
+.pl-white {
+  opacity: 0;
+  background: radial-gradient(
+    130% 130% at 50% 44%,
+    #ffe9a8 0%,
+    #ffffff 52%,
+    #f4f6f8 100%
+  );
+}
+
+/* The return: molten ember rising from the floor. */
+.pl-ember {
+  opacity: 0;
+  background:
+    radial-gradient(
+      130% 84% at 50% 122%,
+      rgba(245, 200, 76, 0.52),
+      rgba(212, 167, 44, 0.22) 34%,
+      rgba(6, 5, 7, 0) 64%
+    ),
+    radial-gradient(
+      64% 52% at 50% 66%,
+      rgba(245, 200, 76, 0.1),
+      rgba(6, 5, 7, 0) 72%
+    );
+}
+
+/* Kintsugi crack veins — drawn in across the return. */
+.pl-cracks {
+  opacity: 0;
+}
+.pl-cracks svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.pl-cracks path {
+  fill: none;
+  stroke: var(--gold-hot);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgba(245, 200, 76, 0.55));
+}
+
+/* Fine film grain, barely there. */
+.pl-grain {
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.5) 0,
+      rgba(255, 255, 255, 0.5) 1px,
+      transparent 1px,
+      transparent 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.5) 0,
+      rgba(0, 0, 0, 0.5) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+
+/* ------------------------------------------------------------------ *
+ * The Pulse — fixed EKG rail + cardiac readout
+ * ------------------------------------------------------------------ */
+
+.pl-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--pl-rail);
+  height: 100vh;
+  height: 100dvh;
+  z-index: 5;
+  /* Clickable so the flatline can be shocked (hidden defib easter egg). */
+  pointer-events: auto;
+  cursor: default;
+}
+
+/* Defibrillation flash — the jolt when the flatline is shocked. */
+.pl-defib {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    120% 90% at 3% 50%,
+    rgba(255, 233, 168, 0.9),
+    rgba(245, 200, 76, 0.35) 30%,
+    rgba(6, 5, 7, 0) 62%
+  );
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pl-defib[data-flash="1"] {
+    animation: pl-defib-flash 0.5s ease-out forwards;
+  }
+}
+@keyframes pl-defib-flash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Soft masthead fade so scrolling text passes cleanly under the corner HUD. */
+.pl-topscrim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4.5rem;
+  z-index: 15;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    var(--void) 0%,
+    rgba(6, 5, 7, 0.82) 42%,
+    rgba(6, 5, 7, 0) 100%
+  );
+}
+
+.pl-readout {
+  position: fixed;
+  top: 1rem;
+  left: calc(var(--pl-rail) + 0.55rem);
+  z-index: 20;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  color: #6f6a63;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+}
+.pl-readout .pl-bpm {
+  display: block;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  color: var(--blood-bright);
+  transition: color 260ms ease;
+}
+.pl-readout .pl-rhythm {
+  display: block;
+  color: #6f6a63;
+}
+.pl-readout[data-phase="flat"] .pl-bpm {
+  color: #4a4640;
+}
+.pl-readout[data-phase="wrong"] .pl-bpm {
+  color: var(--gold-hot);
+}
+.pl-readout[data-phase="wrong"] .pl-rhythm {
+  color: var(--gold-dim);
+}
+
+/* Descent trauma log */
+.pl-log {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+}
+.pl-log span {
+  color: #3a3730;
+  transition: color 320ms ease, opacity 320ms ease;
+  opacity: 0.55;
+}
+.pl-log span[data-on="1"] {
+  color: #6a4f18;
+  opacity: 1;
+}
+.pl-log span[data-now="1"] {
+  color: var(--blood-bright);
+}
+.pl-readout[data-phase="flat"] .pl-log span[data-now="1"] {
+  color: #8f887c;
+}
+.pl-readout[data-phase="wrong"] .pl-log span[data-now="1"] {
+  color: var(--gold-hot);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pl-log span[data-now="1"] {
+    animation: pl-log-blink 1.4s steps(2, jump-none) infinite;
+  }
+}
+@keyframes pl-log-blink {
+  0%,
+  72% {
+    opacity: 1;
+  }
+  73%,
+  82% {
+    opacity: 0.45;
+  }
+  83%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Static HUD — canon corridor marker
+ * ------------------------------------------------------------------ */
+
+.pl-hud {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 20;
+  text-align: right;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  line-height: 1.6;
+  color: #6f6a63;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+}
+.pl-hud .pl-hud-lv {
+  display: block;
+  color: var(--gold-dim);
+  letter-spacing: 0.28em;
+}
+.pl-hud .pl-hud-signs {
+  display: block;
+  color: #7d3b40;
+  transition: color 300ms ease;
+}
+.pl-hud[data-phase="flat"] .pl-hud-signs {
+  color: #4a4640;
+}
+.pl-hud[data-phase="wrong"] .pl-hud-signs {
+  color: var(--gold-dim);
+}
+.pl-hud .pl-glitch {
+  display: inline-block;
+}
+
+/* ------------------------------------------------------------------ *
+ * The read
+ * ------------------------------------------------------------------ */
+
+.pl-article {
+  position: relative;
+  z-index: 10;
+  max-width: var(--pl-measure);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Opening scene */
+.pl-open {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.4rem;
+}
+.pl-open-kicker {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  text-indent: 0.42em;
+}
+.pl-open-title {
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: clamp(1.9rem, 6.2vw, 4.2rem);
+  line-height: 1.14;
+  color: var(--bone);
+  margin: 0;
+  text-wrap: balance;
+}
+/* Chromatic-aberration glitch on "WRONG" — brief, infrequent, motion-gated. */
+.pl-glitch {
+  position: relative;
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pl-glitch::before,
+  .pl-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+  .pl-glitch::before {
+    color: var(--neon-cyan);
+    animation: pl-glitch-a 7s steps(1, end) infinite;
+  }
+  .pl-glitch::after {
+    color: var(--neon-magenta);
+    animation: pl-glitch-b 7s steps(1, end) infinite;
+  }
+}
+@keyframes pl-glitch-a {
+  0%,
+  90%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  91% {
+    transform: translate(-3px, -1px);
+    opacity: 0.85;
+  }
+  93% {
+    transform: translate(2px, 1px);
+    opacity: 0.7;
+  }
+  95% {
+    transform: translate(-2px, 1px);
+    opacity: 0.8;
+  }
+  96% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+@keyframes pl-glitch-b {
+  0%,
+  90%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  91% {
+    transform: translate(3px, 1px);
+    opacity: 0.85;
+  }
+  93% {
+    transform: translate(-2px, -1px);
+    opacity: 0.7;
+  }
+  95% {
+    transform: translate(2px, -1px);
+    opacity: 0.8;
+  }
+  96% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+.pl-open-sub {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  color: var(--halo-silver);
+  max-width: 26rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.pl-scrollcue {
+  margin-top: 0.6rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #5c5751;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.pl-scrollcue span[aria-hidden] {
+  font-size: 0.9rem;
+  color: var(--gold-dim);
+}
+
+/* Body copy — the literary core */
+.pl-p {
+  font-size: clamp(1.24rem, 1.05rem + 0.7vw, 1.5rem);
+  line-height: 1.72;
+  letter-spacing: 0.004em;
+  color: var(--bone);
+  margin: 0 0 var(--pl-gap);
+  text-wrap: pretty;
+  hanging-punctuation: first last;
+}
+.pl-p:last-child {
+  margin-bottom: 0;
+}
+
+/* Spoken lines — set off in the margin rhythm */
+.pl-dialogue {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1.4rem, 1.1rem + 1.1vw, 1.95rem);
+  line-height: 1.42;
+  color: var(--halo-silver);
+  margin: 0 0 var(--pl-gap);
+  padding-left: 1.1rem;
+  border-left: 1px solid rgba(212, 167, 44, 0.32);
+  text-wrap: pretty;
+}
+
+/* Bell — resonant ring */
+.pl-bell {
+  position: relative;
+}
+.pl-bell-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--pl-gap);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.pl-bell-btn .pl-p {
+  margin: 0;
+}
+.pl-bell-ring {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-hot);
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  pointer-events: none;
+}
+.pl-bell-hint {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #5c5751;
+  transition: color 200ms ease;
+}
+.pl-bell-btn:hover .pl-bell-hint,
+.pl-bell-btn:focus-visible .pl-bell-hint {
+  color: var(--gold);
+}
+
+/* Fracture — hairline crack straight down the line */
+.pl-fracture {
+  position: relative;
+}
+.pl-fracture-line {
+  position: absolute;
+  left: 50%;
+  top: -0.2em;
+  bottom: -0.2em;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--gold-hot) 18%,
+    var(--gold) 50%,
+    var(--gold-hot) 82%,
+    transparent
+  );
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(245, 200, 76, 0.6));
+}
+
+/* The fade — dissolving words */
+.pl-fade-p {
+  position: relative;
+}
+.pl-diss-letter {
+  display: inline-block;
+  white-space: pre;
+  will-change: opacity, filter, transform;
+}
+
+/* Death — dead black, tiny bone type, long silence */
+.pl-death {
+  font-family: var(--font-crimson), serif;
+  font-size: clamp(0.92rem, 0.85rem + 0.3vw, 1.05rem);
+  letter-spacing: 0.02em;
+  color: #b9b1a2;
+  text-align: center;
+  margin: 58vh 0 62vh;
+  opacity: 0.86;
+}
+
+/* The nothing — sparse small type on black */
+.pl-void {
+  font-size: clamp(1rem, 0.92rem + 0.4vw, 1.18rem);
+  line-height: 1.66;
+  color: #8f887c;
+  text-align: center;
+  max-width: 28rem;
+  margin: 0 auto 34vh;
+  text-wrap: pretty;
+}
+.pl-void:first-of-type {
+  margin-top: 4vh;
+}
+
+/* Emphatic single beats — escalating toward the return */
+.pl-beat {
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: calc(clamp(1.5rem, 1rem + 3.2vw, 2.9rem) * var(--pl-beat-scale, 1));
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--bone);
+  margin: 20vh 0;
+  text-wrap: balance;
+}
+.pl-beat[data-warm="1"] {
+  color: var(--gold-hot);
+  text-shadow: 0 0 26px rgba(245, 200, 76, 0.35);
+}
+
+/* Ignition — the gold wakes up */
+.pl-ignite {
+  font-family: var(--font-gloock), var(--font-crimson), serif;
+  font-size: clamp(1.7rem, 1.1rem + 3vw, 2.9rem);
+  line-height: 1.14;
+  text-align: center;
+  color: var(--gold-hot);
+  margin: 26vh 0 20vh;
+  text-shadow: 0 0 30px rgba(245, 200, 76, 0.4);
+  text-wrap: balance;
+}
+.pl-ignite em {
+  font-style: italic;
+  color: var(--gold-white);
+}
+
+/* Return body — warmed */
+.pl-return {
+  font-size: clamp(1.2rem, 1.02rem + 0.7vw, 1.46rem);
+  line-height: 1.7;
+  color: #e9d9b4;
+  margin: 0 0 var(--pl-gap);
+  text-wrap: pretty;
+}
+.pl-return strong {
+  font-weight: 400;
+  color: var(--gold-hot);
+}
+
+/* ------------------------------------------------------------------ *
+ * Finale + title card
+ * ------------------------------------------------------------------ */
+
+.pl-finale-wrap {
+  position: relative;
+  z-index: 10;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 24vh 1.5rem 18vh;
+  text-align: center;
+}
+.pl-finale {
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: clamp(2rem, 1rem + 7.6vw, 5.4rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: var(--gold-hot);
+  margin: 0;
+  text-wrap: balance;
+  text-shadow: 0 0 44px rgba(245, 200, 76, 0.34);
+}
+.pl-fin-letter {
+  display: inline-block;
+  white-space: pre;
+}
+
+.pl-titlecard {
+  margin-top: 22vh;
+  border-top: 1px solid rgba(212, 167, 44, 0.28);
+  padding-top: 2.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.pl-tc-kicker {
+  font-family: var(--font-boldonse), sans-serif;
+  font-size: clamp(1.1rem, 0.9rem + 1.4vw, 1.8rem);
+  letter-spacing: 0.02em;
+  color: var(--bone);
+  margin: 0;
+}
+.pl-tc-meta {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin: 0.2rem 0 1.8rem;
+}
+.pl-tc-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 2.6rem;
+}
+.pl-tc-line {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 0.95rem + 0.7vw, 1.34rem);
+  line-height: 1.32;
+  color: var(--halo-silver);
+  margin: 0;
+}
+.pl-tc-line span {
+  display: block;
+}
+
+.pl-exits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 2rem;
+  justify-content: center;
+}
+.pl-exit {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.35rem 0.2rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--halo-silver);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 200ms ease, border-color 200ms ease, letter-spacing 200ms ease;
+}
+.pl-exit:hover,
+.pl-exit:focus-visible {
+  color: var(--gold-hot);
+  border-color: var(--gold);
+  letter-spacing: 0.26em;
+}
+
+/* Visible focus everywhere it matters */
+.pl-exit:focus-visible,
+.pl-bell-btn:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: 4px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Chapter chrome — progress bar, back link, resume, end-of-chapter
+ * ------------------------------------------------------------------ */
+
+/* Hairline reading-progress bar: blood at the start, gold by the end. */
+.pl-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 40;
+  pointer-events: none;
+  background: rgba(232, 226, 214, 0.06);
+}
+.pl-progress-fill {
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    var(--blood) 0%,
+    var(--blood-bright) 42%,
+    var(--gold) 78%,
+    var(--gold-hot) 100%
+  );
+  box-shadow: 0 0 10px rgba(245, 200, 76, 0.3);
+  will-change: transform;
+}
+
+/* Quiet route back up to the index — fixed top centre, under the bar. */
+.pl-back {
+  position: fixed;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0 1rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  text-transform: uppercase;
+  color: #7b756c;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+.pl-back span[aria-hidden] {
+  color: var(--gold-dim);
+  transition: color 200ms ease;
+}
+.pl-back:hover,
+.pl-back:focus-visible {
+  color: var(--gold-hot);
+}
+.pl-back:hover span[aria-hidden],
+.pl-back:focus-visible span[aria-hidden] {
+  color: var(--gold-hot);
+}
+
+/* Resume offer — returns you to where the blood left off. */
+.pl-resume {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  display: flex;
+  align-items: stretch;
+  background: rgba(10, 8, 12, 0.92);
+  border: 1px solid rgba(212, 167, 44, 0.42);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55);
+  max-width: min(21rem, calc(100vw - 2rem));
+}
+.pl-resume-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-height: 44px;
+  padding: 0.55rem 0.85rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone);
+  transition: color 200ms ease;
+}
+.pl-resume-btn .pl-resume-k {
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  color: var(--blood-bright);
+  transition: color 200ms ease;
+}
+.pl-resume-btn:hover,
+.pl-resume-btn:focus-visible {
+  color: var(--gold-hot);
+}
+.pl-resume-btn:hover .pl-resume-k,
+.pl-resume-btn:focus-visible .pl-resume-k {
+  color: var(--gold);
+}
+.pl-resume-x {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  border-left: 1px solid rgba(212, 167, 44, 0.28);
+  color: #6f6a63;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+.pl-resume-x:hover,
+.pl-resume-x:focus-visible {
+  color: var(--bone);
+}
+.pl-resume-btn:focus-visible,
+.pl-resume-x:focus-visible,
+.pl-back:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: -2px;
+}
+
+/* End-of-chapter block */
+.pl-end {
+  position: relative;
+  z-index: 10;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 1.5rem 20vh;
+  text-align: center;
+}
+.pl-end-rule {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin: 0 0 3.4rem;
+}
+.pl-end-rule span[aria-hidden] {
+  color: rgba(212, 167, 44, 0.5);
+}
+.pl-end-hook {
+  position: relative;
+  max-width: 34rem;
+  margin: 0 auto 3.6rem;
+  padding: 1.7rem 1.5rem 1.8rem;
+  border: 1px solid rgba(212, 167, 44, 0.28);
+  background:
+    radial-gradient(120% 130% at 50% 0%, rgba(212, 167, 44, 0.09), rgba(10, 8, 12, 0) 62%),
+    rgba(9, 7, 11, 0.86);
+  backdrop-filter: blur(2px);
+}
+.pl-end-k {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin: 0 0 0.9rem;
+}
+/* The hook is the season's open mystery — it must read like a headline. */
+.pl-end-hook .pl-end-k {
+  color: var(--gold-hot);
+  font-size: 0.6rem;
+}
+.pl-end-hooktext {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 1rem + 0.8vw, 1.42rem);
+  line-height: 1.5;
+  color: var(--halo-silver);
+  margin: 0;
+  text-wrap: pretty;
+}
+.pl-end-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(212, 167, 44, 0.16);
+  border: 1px solid rgba(212, 167, 44, 0.16);
+  margin: 0 0 3.2rem;
+}
+.pl-end-cell {
+  background: rgba(10, 8, 12, 0.72);
+  padding: 1.4rem 1.2rem 1.5rem;
+}
+.pl-end-cell .pl-end-k {
+  margin-bottom: 0.7rem;
+}
+.pl-end-big {
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: clamp(0.92rem, 0.8rem + 0.7vw, 1.18rem);
+  line-height: 1.35;
+  color: var(--bone);
+  margin: 0 0 0.65rem;
+  text-wrap: balance;
+}
+.pl-end-tracklink {
+  color: var(--gold-hot);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 167, 44, 0.4);
+  transition: color 200ms ease, border-color 200ms ease;
+}
+.pl-end-tracklink:hover,
+.pl-end-tracklink:focus-visible {
+  color: var(--gold-white);
+  border-color: var(--gold-hot);
+}
+.pl-end-tracklink:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: 3px;
+}
+.pl-end-note {
+  font-family: var(--font-crimson), serif;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #8f887c;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------------ *
+ * Responsive — 390px
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+  .pl {
+    --pl-rail: 2rem;
+    --pl-measure: 100%;
+    --pl-gap: 1.4rem;
+  }
+  .pl-article {
+    padding-left: 2.85rem;
+    padding-right: 1.15rem;
+  }
+  .pl-open {
+    padding-left: 0.7rem;
+  }
+  .pl-readout {
+    font-size: 0.54rem;
+    left: calc(var(--pl-rail) + 0.4rem);
+  }
+  .pl-readout .pl-bpm {
+    font-size: 0.74rem;
+  }
+  .pl-log {
+    display: none;
+  }
+  .pl-hud {
+    font-size: 0.54rem;
+  }
+  .pl-death {
+    margin: 46vh 0 50vh;
+  }
+  .pl-finale-wrap {
+    padding-left: 2.85rem;
+    padding-right: 1.15rem;
+  }
+  .pl-end {
+    padding-left: 2.85rem;
+    padding-right: 1.15rem;
+  }
+  .pl-end-grid {
+    grid-template-columns: 1fr;
+  }
+  .pl-back {
+    font-size: 0.52rem;
+    padding: 0 0.7rem;
+  }
+  .pl-resume {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+}
+
+/* Decorative CSS pulses are auto-disabled under reduced motion by globals.css;
+   they always resolve to a safe, legible resting state. */
+@media (prefers-reduced-motion: no-preference) {
+  .pl-scrollcue span[aria-hidden] {
+    animation: pl-cue-bob 1.9s ease-in-out infinite;
+  }
+  .pl-corridor {
+    animation: pl-breathe 6.5s ease-in-out infinite;
+  }
+  .pl-bell-ring[data-ringing] {
+    animation: pl-ring 0.9s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+  }
+}
+
+@keyframes pl-ring {
+  0% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(26);
+  }
+}
+
+@keyframes pl-cue-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+}
+
+@keyframes pl-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}

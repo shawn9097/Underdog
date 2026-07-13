@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/*
+ * UNDERDOG CITY — global design tokens.
+ * Kintsugi palette: void blacks, molten golds, halo whites, district neon.
+ */
+:root {
+  /* The bottom */
+  --void: #060507;
+  --soot: #0e0c11;
+  --ash: #1a171f;
+  --smoke: #2a2531;
+
+  /* Kintsugi gold ramp */
+  --gold-dim: #8a6a1f;
+  --gold: #d4a72c;
+  --gold-hot: #f5c84c;
+  --gold-white: #ffe9a8;
+
+  /* The Halo */
+  --halo-white: #f4f6f8;
+  --halo-silver: #c9d2dc;
+  --halo-blue: #7fa8d9;
+
+  /* District neon */
+  --neon-magenta: #ff2f7e;
+  --neon-cyan: #29e0d4;
+  --neon-violet: #8b5cf6;
+
+  /* Blood / warning */
+  --blood: #8e1d2c;
+  --blood-bright: #d92b3f;
+
+  --bone: #e8e2d6;
+}
+
+html {
+  background: var(--void);
+  color: var(--bone);
+  scrollbar-color: var(--gold-dim) var(--void);
+}
+
+body {
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--void);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

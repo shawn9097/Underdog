@@ -1,0 +1,758 @@
+/*
+ * THE SERIAL — /serial index styles.
+ *
+ * Scoped under .si. The front page of a living story: Chapter 0 burns live
+ * at the top of the ladder; the forthcoming chapters hang beneath it sealed
+ * in dark kintsugi wax. Reveal states only exist when JS marks the root
+ * ([data-anim="1"]), so the page is fully readable without JS or motion.
+ */
+
+.si {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--font-crimson), Georgia, "Times New Roman", serif;
+  padding-bottom: 7rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Atmosphere
+ * ------------------------------------------------------------------ */
+
+.si-atmo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 50% at 50% -12%, rgba(127, 168, 217, 0.055), rgba(6, 5, 7, 0) 62%),
+    radial-gradient(130% 72% at 50% 116%, rgba(212, 167, 44, 0.1), rgba(6, 5, 7, 0) 58%);
+}
+
+.si-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.5) 0,
+      rgba(255, 255, 255, 0.5) 1px,
+      transparent 1px,
+      transparent 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.5) 0,
+      rgba(0, 0, 0, 0.5) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+
+/* ------------------------------------------------------------------ *
+ * Reveal choreography (JS-gated)
+ * ------------------------------------------------------------------ */
+
+.si[data-anim="1"] [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+.si[data-anim="1"] [data-reveal][data-in="1"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Masthead
+ * ------------------------------------------------------------------ */
+
+.si-head {
+  position: relative;
+  z-index: 1;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(5rem, 14vh, 8.5rem) 1.5rem 4.2rem;
+  text-align: center;
+}
+.si-kicker {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin: 0 0 1.6rem;
+}
+.si-title {
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: clamp(2.7rem, 9vw, 5.6rem);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  color: var(--bone);
+  margin: 0 0 1.8rem;
+  text-shadow: 0 0 60px rgba(212, 167, 44, 0.18);
+}
+.si-lede {
+  font-size: clamp(1.08rem, 1rem + 0.5vw, 1.28rem);
+  line-height: 1.68;
+  color: #b9b1a2;
+  max-width: 36rem;
+  margin: 0 auto;
+  text-wrap: pretty;
+}
+.si-lede em {
+  font-style: italic;
+  color: var(--gold-hot);
+}
+.si-thesis {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.08rem);
+  line-height: 1.6;
+  color: #857e72;
+  max-width: 32rem;
+  margin: 2.2rem auto 0;
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------------ *
+ * The chapter ladder — a gold vein with chapters hung off it
+ * ------------------------------------------------------------------ */
+
+.si-ladder-wrap {
+  position: relative;
+  z-index: 1;
+  --pad: 1.5rem;
+  --vein: 0.55rem;
+}
+.si-ladder {
+  list-style: none;
+  position: relative;
+  max-width: 49rem;
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+/* Dim base rail — the unwritten spine of the season. */
+.si-ladder::before {
+  content: "";
+  position: absolute;
+  top: -1.5rem;
+  bottom: 0.5rem;
+  left: calc(var(--pad) + var(--vein));
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(138, 106, 31, 0),
+    rgba(138, 106, 31, 0.34) 6%,
+    rgba(138, 106, 31, 0.26) 78%,
+    rgba(138, 106, 31, 0)
+  );
+}
+/* The kintsugi ink — molten gold that writes itself down the rail as you
+   read the ladder. Scroll-driven via --si-ink (0..1); reduced-motion pins
+   it full so the vein is simply present. */
+.si-vein {
+  position: absolute;
+  top: -1.5rem;
+  bottom: 0.5rem;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  max-width: 49rem;
+  pointer-events: none;
+  z-index: 0;
+}
+.si-vein-ink {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--pad) + var(--vein));
+  width: 1px;
+  transform: scaleY(var(--si-ink, 0));
+  transform-origin: top center;
+  background: linear-gradient(
+    180deg,
+    rgba(245, 200, 76, 0.9) 0%,
+    rgba(212, 167, 44, 0.7) 45%,
+    rgba(212, 167, 44, 0.42) 100%
+  );
+  box-shadow: 0 0 8px rgba(245, 200, 76, 0.5);
+  will-change: transform;
+}
+/* The molten tip — a bright bead riding the leading edge of the ink. */
+.si-vein-tip {
+  position: absolute;
+  left: calc(var(--pad) + var(--vein));
+  top: calc(var(--si-ink, 0) * 100%);
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--gold-white);
+  box-shadow: 0 0 10px 2px rgba(245, 200, 76, 0.85);
+  opacity: var(--si-ink-tip, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .si-vein-ink {
+    transform: scaleY(1);
+  }
+  .si-vein-tip {
+    display: none;
+  }
+}
+.si-row {
+  position: relative;
+  padding-left: 2.6rem;
+  margin: 0 0 2.4rem;
+}
+.si-row::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--vein) - 4px);
+  top: 1.5rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.si-row-live::before {
+  background: var(--gold-hot);
+  box-shadow: 0 0 12px rgba(245, 200, 76, 0.85);
+}
+.si-row-sealed::before {
+  background: var(--void);
+  border: 1px solid rgba(138, 106, 31, 0.6);
+}
+.si-row-divider::before {
+  content: none;
+}
+
+/* Shared row head */
+.si-row-head {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin: 0 0 1rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.si-num {
+  color: var(--gold-dim);
+}
+.si-meta-k {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+.si-tracklink {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 167, 44, 0.35);
+  /* invisible hit-area expansion to a ≥40px target */
+  padding: 0.55rem 0;
+  margin: -0.55rem 0;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+.si-tracklink:hover,
+.si-tracklink:focus-visible {
+  color: var(--gold-hot);
+  border-color: var(--gold-hot);
+}
+.si-tracklink:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: 3px;
+}
+
+/* --- LIVE chapter card --- */
+
+.si-live {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(212, 167, 44, 0.38);
+  background:
+    radial-gradient(120% 120% at 50% -30%, rgba(212, 167, 44, 0.1), rgba(6, 5, 7, 0) 55%),
+    linear-gradient(180deg, rgba(26, 23, 31, 0.82), rgba(10, 8, 12, 0.92));
+  padding: 1.7rem 1.9rem 1.6rem;
+  transition: border-color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
+}
+
+/* Folio marginalia — an oversized chapter numeral pressed into the leaf,
+   like the page number of a bound serial. Purely textural; behind content. */
+.si-folio {
+  position: absolute;
+  right: 0.4rem;
+  bottom: -1.4rem;
+  z-index: 0;
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: 8.5rem;
+  line-height: 0.8;
+  color: rgba(212, 167, 44, 0.055);
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.03em;
+}
+.si-folio-live {
+  color: rgba(245, 200, 76, 0.07);
+  bottom: -1.7rem;
+  font-size: 10rem;
+}
+/* Live-card content rides above its folio watermark. */
+.si-live > .si-row-head,
+.si-live > .si-live-title,
+.si-live > .si-live-teaser,
+.si-live > .si-live-cta {
+  position: relative;
+  z-index: 1;
+}
+.si-live:hover {
+  border-color: var(--gold);
+  box-shadow: 0 14px 52px rgba(212, 167, 44, 0.14);
+  transform: translateY(-2px);
+}
+.si-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--gold-hot);
+  border: 1px solid rgba(245, 200, 76, 0.5);
+  padding: 0.28rem 0.6rem 0.26rem;
+}
+.si-live-badge i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold-hot);
+  box-shadow: 0 0 8px rgba(245, 200, 76, 0.9);
+}
+.si-live-title {
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: clamp(1.7rem, 4.6vw, 2.8rem);
+  line-height: 1.1;
+  color: var(--bone);
+  margin: 0 0 1.1rem;
+  text-wrap: balance;
+}
+.si-live-teaser {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1.08rem, 1rem + 0.7vw, 1.4rem);
+  line-height: 1.5;
+  color: var(--halo-silver);
+  max-width: 34rem;
+  margin: 0;
+  text-wrap: pretty;
+}
+.si-live-cta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.1rem;
+  margin: 1.5rem 0 1.6rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-hot);
+}
+.si-live-read span[aria-hidden] {
+  display: inline-block;
+  transition: transform 250ms ease;
+}
+.si-live:hover .si-live-read span[aria-hidden] {
+  transform: translateX(6px);
+}
+.si-live-bar {
+  width: 120px;
+  height: 2px;
+  background: rgba(232, 226, 214, 0.12);
+  overflow: hidden;
+}
+.si-live-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--blood-bright), var(--gold-hot));
+}
+.si-live-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem 1.1rem;
+  border-top: 1px solid rgba(212, 167, 44, 0.16);
+  padding-top: 1.15rem;
+  position: relative;
+  z-index: 2;
+}
+.si-arc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #8f887c;
+  flex-basis: 100%;
+  text-wrap: pretty;
+}
+.si-stretch {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.si-stretch:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: -2px;
+}
+
+/* --- The unwritten divider --- */
+
+.si-row-divider {
+  margin: 3.2rem 0 2.8rem;
+}
+.si-unwritten-quote {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1rem, 0.94rem + 0.4vw, 1.18rem);
+  line-height: 1.5;
+  color: #7d7668;
+  margin: 0;
+  text-wrap: pretty;
+}
+.si-unwritten-cite {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin: 0.55rem 0 0;
+}
+
+/* --- Sealed chapters --- */
+
+.si-sealed {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  gap: 1.35rem;
+  border: 1px solid rgba(212, 167, 44, 0.13);
+  background: rgba(10, 8, 12, 0.55);
+  padding: 1.3rem 1.5rem 1.35rem;
+  transition: border-color 250ms ease, background-color 250ms ease;
+}
+.si-seal-holder,
+.si-sealed-body {
+  position: relative;
+  z-index: 1;
+}
+.si-row-sealed:hover .si-sealed {
+  border-color: rgba(212, 167, 44, 0.34);
+}
+.si-seal-holder {
+  flex: none;
+  padding-top: 0.1rem;
+}
+/* The seal is a quiet affordance — no label, just a cursor and a reward. */
+.si-seal-btn {
+  display: block;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  line-height: 0;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.si-seal-btn:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: 4px;
+}
+.si-seal {
+  width: 60px;
+  height: 60px;
+  display: block;
+}
+/* Cracked state: the kintsugi lights fully and the crown flares. */
+.si-seal-btn[data-cracked="1"] .ws-crack {
+  stroke: var(--gold-hot);
+  opacity: 1;
+}
+.si-seal-btn[data-cracked="1"] .ws-crown {
+  stroke: var(--gold-white);
+  filter: drop-shadow(0 0 4px rgba(245, 200, 76, 0.7));
+}
+.si-seal-btn[data-cracked="1"] .ws-wax {
+  stroke: rgba(245, 200, 76, 0.5);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .si-seal-btn[data-cracked="1"] .si-seal {
+    animation: si-seal-crack 0.6s ease-out;
+  }
+}
+@keyframes si-seal-crack {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  30% {
+    transform: scale(1.08) rotate(-1.5deg);
+    filter: brightness(2.1);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* The whisper — the scoring track bleeding through the broken wax. */
+.si-whisper {
+  margin: 1rem 0 0;
+  padding: 0.9rem 0 0.2rem 0.95rem;
+  border-left: 1px solid rgba(245, 200, 76, 0.45);
+  max-width: 33rem;
+}
+.si-whisper-q {
+  display: block;
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1.02rem, 0.95rem + 0.5vw, 1.24rem);
+  line-height: 1.44;
+  color: var(--gold-white);
+  text-wrap: pretty;
+}
+.si-whisper-cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .si-whisper {
+    animation: si-whisper-in 0.7s cubic-bezier(0.2, 0.6, 0.2, 1) both;
+  }
+}
+@keyframes si-whisper-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+  }
+}
+.ws-wax {
+  fill: #14111a;
+  stroke: rgba(212, 167, 44, 0.3);
+  stroke-width: 1;
+}
+.ws-ring {
+  fill: none;
+  stroke: rgba(212, 167, 44, 0.18);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+}
+.ws-crack {
+  fill: none;
+  stroke: var(--gold-dim);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.78;
+  transition: stroke 300ms ease, opacity 300ms ease;
+}
+.ws-crack-faint {
+  opacity: 0.4;
+}
+.ws-crown {
+  fill: none;
+  stroke: rgba(212, 167, 44, 0.66);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 300ms ease, filter 300ms ease;
+}
+.si-row-sealed:hover .ws-crack {
+  stroke: var(--gold);
+  opacity: 1;
+}
+.si-row-sealed:hover .ws-crown {
+  stroke: var(--gold-hot);
+  filter: drop-shadow(0 0 3px rgba(245, 200, 76, 0.55));
+}
+.si-sealed-body {
+  min-width: 0;
+}
+.si-sealed-status {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.26em;
+  color: #837c70;
+}
+.si-sealed-title {
+  font-family: var(--font-boldonse), var(--font-erica), sans-serif;
+  font-size: clamp(1.1rem, 1rem + 0.9vw, 1.55rem);
+  line-height: 1.16;
+  color: #cfc8ba;
+  margin: 0 0 0.7rem;
+  text-wrap: balance;
+}
+.si-sealed-teaser {
+  font-size: clamp(0.98rem, 0.92rem + 0.35vw, 1.12rem);
+  line-height: 1.62;
+  color: #8f887c;
+  max-width: 33rem;
+  margin: 0;
+  text-wrap: pretty;
+}
+.si-sealed-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin: 0.95rem 0 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Footer — the bell pointer
+ * ------------------------------------------------------------------ */
+
+.si-foot {
+  position: relative;
+  z-index: 1;
+  max-width: 46rem;
+  margin: 5.5rem auto 0;
+  padding: 3rem 1.5rem 0;
+  border-top: 1px solid rgba(212, 167, 44, 0.2);
+  text-align: center;
+}
+.si-foot-k {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  text-transform: uppercase;
+  color: #6f6a63;
+  margin: 0 0 1.4rem;
+}
+.si-foot-hook {
+  font-family: var(--font-instrument-serif), serif;
+  font-style: italic;
+  font-size: clamp(1.15rem, 1.05rem + 0.7vw, 1.5rem);
+  color: var(--gold-white);
+  margin: 0 0 0.5rem;
+  text-wrap: balance;
+}
+.si-foot-note {
+  font-size: 1rem;
+  color: #8f887c;
+  margin: 0;
+}
+.si-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem 2.4rem;
+  margin-top: 1.7rem;
+}
+.si-foot-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.3rem 0.2rem;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--halo-silver);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 200ms ease, border-color 200ms ease, letter-spacing 200ms ease;
+}
+.si-foot-link:hover,
+.si-foot-link:focus-visible {
+  color: var(--gold-hot);
+  border-color: var(--gold);
+  letter-spacing: 0.26em;
+}
+.si-foot-link:focus-visible {
+  outline: 2px solid var(--gold-hot);
+  outline-offset: 4px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion accents
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .si-live-badge i {
+    animation: si-live-pulse 2.2s ease-in-out infinite;
+  }
+}
+@keyframes si-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(245, 200, 76, 0.9);
+  }
+  50% {
+    opacity: 0.45;
+    box-shadow: 0 0 3px rgba(245, 200, 76, 0.4);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Responsive — 390px
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+  .si-ladder-wrap {
+    --pad: 1rem;
+    --vein: 0.4rem;
+  }
+  .si-row {
+    padding-left: 1.85rem;
+  }
+  .si-head {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+  .si-live {
+    padding: 1.35rem 1.15rem 1.25rem;
+  }
+  .si-row-head {
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .si-sealed {
+    gap: 0.95rem;
+    padding: 1.1rem 1rem 1.15rem;
+  }
+  .si-seal {
+    width: 46px;
+    height: 46px;
+  }
+  .si-live-cta {
+    gap: 0.55rem 0.9rem;
+  }
+  .si-foot {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+}
