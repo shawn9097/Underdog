@@ -1,9 +1,13 @@
 /**
- * CLAIM YOUR KEY — pure ritual logic.
+ * UNDERDOG CITY — the rite of tenancy, pure logic.
  *
  * Seeded fracture generation, key geometry derived from the fracture seed,
- * and deed derivations. No DOM. Everything deterministic given a seed so a
- * visitor's key is genuinely — and reproducibly — their own.
+ * and the on-device deed record. No DOM. Everything deterministic given a
+ * seed so a tenant's key is genuinely — and reproducibly — their own.
+ *
+ * The claim record is v2: it now carries the server-issued tenant number and
+ * tenant key returned by claim_tenancy(). The music surface reads exactly the
+ * v2 shape from localStorage, so do not reorder or rename its fields.
  */
 
 export type Pt = { x: number; y: number };
@@ -260,22 +264,29 @@ export function resample(pts: Pt[], n: number): Pt[] {
 }
 
 /* ------------------------------------------------------------------ */
-/* The deed                                                            */
+/* The deed — on-device record of a real, server-issued tenancy        */
 /* ------------------------------------------------------------------ */
 
 export interface Claim {
   alias: string;
   email: string;
-  /** Fracture seed accumulated from the visitor's actual strike points. */
+  /** Fracture seed accumulated from the tenant's actual strike points. */
   seed: number;
   bitting: number[];
   deedId: string;
   /** Sublevel depth below the Halo. */
   depth: number;
   issuedISO: string;
+  /** Sequential number issued by the city ledger (claim_tenancy). */
+  tenantNumber: number;
+  /** The tenant's private credential — required to leave marks on the wall. */
+  tenantKey: string;
 }
 
-export const CLAIM_STORAGE_KEY = "uc:key-claim:v1";
+/** v2: carries server credentials. The music surface reads this exact key. */
+export const CLAIM_STORAGE_KEY = "uc:key-claim:v2";
+/** v1 predates the server ledger; a v1 record must re-claim to get a number. */
+export const LEGACY_CLAIM_KEY_V1 = "uc:key-claim:v1";
 
 /** Deterministic deed number + depth from alias/email. */
 export function deriveDeed(alias: string, email: string): { deedId: string; depth: number } {
@@ -299,7 +310,10 @@ export function loadClaim(): Claim | null {
       typeof c.seed === "number" &&
       Array.isArray(c.bitting) &&
       c.bitting.length > 0 &&
-      typeof c.deedId === "string"
+      typeof c.deedId === "string" &&
+      typeof c.tenantNumber === "number" &&
+      typeof c.tenantKey === "string" &&
+      c.tenantKey.length > 0
     ) {
       return c;
     }
@@ -309,9 +323,27 @@ export function loadClaim(): Claim | null {
   }
 }
 
+/**
+ * True when a pre-server (v1) claim is stranded on this device with no valid
+ * v2 record. Such a tenant never received a real number and must re-claim.
+ */
+export function hasLegacyClaim(): boolean {
+  try {
+    if (window.localStorage.getItem(CLAIM_STORAGE_KEY)) return false;
+    const raw = window.localStorage.getItem(LEGACY_CLAIM_KEY_V1);
+    if (!raw) return false;
+    const c = JSON.parse(raw) as Partial<Claim>;
+    return typeof c.alias === "string" && typeof c.email === "string";
+  } catch {
+    return false;
+  }
+}
+
 export function saveClaim(c: Claim): void {
   try {
     window.localStorage.setItem(CLAIM_STORAGE_KEY, JSON.stringify(c));
+    // A fresh server claim supersedes any stranded v1 record.
+    window.localStorage.removeItem(LEGACY_CLAIM_KEY_V1);
   } catch {
     /* private mode — the deed still renders this visit */
   }
@@ -320,6 +352,7 @@ export function saveClaim(c: Claim): void {
 export function clearClaim(): void {
   try {
     window.localStorage.removeItem(CLAIM_STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_CLAIM_KEY_V1);
   } catch {
     /* ignore */
   }
@@ -338,4 +371,9 @@ export function formatIssued(iso: string): string {
 
 export function seedHex(seed: number): string {
   return `0x${(seed >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
+}
+
+/** The engraved tenant number: TENANT No. 000123. */
+export function formatTenantNo(n: number): string {
+  return String(Math.max(0, Math.floor(n))).padStart(6, "0");
 }

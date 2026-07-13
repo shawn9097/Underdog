@@ -7,6 +7,7 @@ import {
   type Claim,
   bowCrackSvgPath,
   formatIssued,
+  formatTenantNo,
   keyShape,
   keySvgPath,
   mulberry32,
@@ -172,9 +173,9 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
   const shape = keyShape(claim.bitting);
   const keyPath = new Path2D(keySvgPath(shape));
   const wound = new Path2D(bowCrackSvgPath(claim.seed));
-  const kSize = 350;
+  const kSize = 340;
   ctx.save();
-  ctx.translate((W - kSize) / 2, 310);
+  ctx.translate((W - kSize) / 2, 300);
   ctx.scale(kSize / 100, kSize / 100);
   const kg = ctx.createLinearGradient(50, 4, 50, 98);
   kg.addColorStop(0, "#ffe9a8");
@@ -194,19 +195,23 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
   ctx.restore();
   ctx.restore();
 
-  center(claim.deedId, 758, `44px ${mono}`, "#f5c84c", 10);
-  center("FRACTURE SEED " + seedHex(claim.seed), 800, `18px ${mono}`, "#8a8494", 4);
-  center("BITTING " + claim.bitting.join(" · "), 832, `15px ${mono}`, "#6f6879", 4);
+  // the real, server-issued tenant number — the heart of the deed
+  center("TENANT", 712, `20px ${mono}`, "#8a6a1f", 8);
+  center(`No. ${formatTenantNo(claim.tenantNumber)}`, 772, `54px ${italiana}`, "#f5c84c", 8);
+
+  center(claim.deedId, 828, `34px ${mono}`, "#e8e2d6", 8);
+  center("FRACTURE SEED " + seedHex(claim.seed), 866, `18px ${mono}`, "#8a8494", 4);
+  center("BITTING " + claim.bitting.join(" · "), 898, `15px ${mono}`, "#6f6879", 4);
 
   // registry rows
   const rows: Array<[string, string]> = [
-    ["TENANT", claim.alias.toUpperCase()],
+    ["ALIAS", claim.alias.toUpperCase()],
     ["DEPTH", `SUBLEVEL −${claim.depth}`],
     ["ISSUED", formatIssued(claim.issuedISO)],
     ["REGISTRAR", BRAND.label.toUpperCase()],
   ];
   const colX = [W * 0.28, W * 0.72];
-  const rowY = [896, 1010];
+  const rowY = [968, 1074];
   rows.forEach(([label, value], i) => {
     const x = colX[i % 2];
     const y = rowY[Math.floor(i / 2)];
@@ -214,33 +219,33 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
     ctx.font = `17px ${mono}`;
     ctx.fillStyle = "#8a6a1f";
     ctx.fillText(label, x, y);
-    ctx.font = `700 40px ${shoulders}`;
+    ctx.font = `700 38px ${shoulders}`;
     ctx.fillStyle = "#e8e2d6";
-    ctx.fillText(value, x, y + 48);
+    ctx.fillText(value, x, y + 46);
   });
 
   ctx.strokeStyle = "rgba(212,167,44,0.3)";
   ctx.beginPath();
-  ctx.moveTo(160, 1122);
-  ctx.lineTo(W - 160, 1122);
+  ctx.moveTo(160, 1176);
+  ctx.lineTo(W - 160, 1176);
   ctx.stroke();
 
   // the oath — the manifesto, verbatim
-  center("THE OATH OF THE UNDERDOGS", 1176, `17px ${mono}`, "#8a6a1f", 6);
+  center("THE OATH OF THE UNDERDOGS", 1226, `17px ${mono}`, "#8a6a1f", 6);
   try {
     (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = "0px";
   } catch {
     /* ignore */
   }
-  ctx.font = `italic 36px ${crimson}`;
+  ctx.font = `italic 34px ${crimson}`;
   ctx.fillStyle = "#e8e2d6";
   const oath = `“${BRAND.manifesto}”`;
-  const lines = wrapLines(ctx, oath, 700);
+  const lines = wrapLines(ctx, oath, 720);
   lines.forEach((l, i) => {
-    ctx.fillText(l, W / 2, 1232 + i * 50);
+    ctx.fillText(l, W / 2, 1278 + i * 48);
   });
 
-  const footY = 1232 + lines.length * 50 + 52;
+  const footY = 1278 + lines.length * 48 + 48;
   ctx.strokeStyle = "rgba(212,167,44,0.3)";
   ctx.beginPath();
   ctx.moveTo(160, footY - 34);
@@ -249,8 +254,8 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
 
   center(
     `${BRAND.album.toUpperCase()} — 14 TRACKS — ${BRAND.label.toUpperCase()}`,
-    footY + 8,
-    `19px ${mono}`,
+    footY + 6,
+    `18px ${mono}`,
     "#9a93a6",
     4
   );
@@ -258,17 +263,17 @@ async function exportDeedPng(claim: Claim, daysLeft: number | null): Promise<voi
     daysLeft !== null && daysLeft > 0
       ? `DOORS OPEN ${BRAND.releaseDateDisplay} — ${daysLeft} DAYS`
       : `DOORS OPEN ${BRAND.releaseDateDisplay}`,
-    footY + 44,
-    `19px ${mono}`,
+    footY + 42,
+    `18px ${mono}`,
     "#d4a72c",
     4
   );
-  center(BRAND.emailHook, footY + 96, `italic 30px ${crimson}`, "#8a8494", 0);
+  center(BRAND.emailHook, footY + 92, `italic 28px ${crimson}`, "#8a8494", 0);
 
   const url = c.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = url;
-  a.download = `underdog-city-deed-${claim.deedId}.png`;
+  a.download = `underdog-city-deed-${formatTenantNo(claim.tenantNumber)}.png`;
   a.click();
 }
 
@@ -356,7 +361,7 @@ export default function DeedCard({ claim, onReset }: Props) {
             bitting={claim.bitting}
             seed={claim.seed}
             title={`Key ${claim.deedId}, cut from fracture seed ${seedHex(claim.seed)}`}
-            className="h-44 w-44 transition-transform duration-500 group-hover:scale-[1.03] sm:h-52 sm:w-52"
+            className="h-40 w-40 transition-transform duration-500 group-hover:scale-[1.03] sm:h-48 sm:w-48"
           />
           <span
             aria-hidden="true"
@@ -369,9 +374,31 @@ export default function DeedCard({ claim, onReset }: Props) {
           </span>
         </button>
 
+        {/* the real tenant number — sequential, issued by the city ledger */}
+        <div className="mt-5 flex flex-col items-center">
+          <span
+            className="text-[0.58rem] tracking-[0.4em]"
+            style={{ fontFamily: "var(--font-geist-mono)", color: "#8a6a1f" }}
+          >
+            TENANT
+          </span>
+          <span
+            className="mt-1 text-4xl leading-none tracking-[0.08em] sm:text-5xl"
+            style={{
+              fontFamily: "var(--font-italiana)",
+              background: "linear-gradient(180deg, #ffe9a8, #f5c84c 55%, #d4a72c)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            No. {formatTenantNo(claim.tenantNumber)}
+          </span>
+        </div>
+
         <p
-          className="mt-4 text-center text-xl tracking-[0.22em] sm:text-2xl"
-          style={{ fontFamily: "var(--font-geist-mono)", color: "#f5c84c" }}
+          className="mt-4 text-center text-lg tracking-[0.22em] sm:text-xl"
+          style={{ fontFamily: "var(--font-geist-mono)", color: "#e8e2d6" }}
         >
           {claim.deedId}
         </p>
@@ -385,7 +412,7 @@ export default function DeedCard({ claim, onReset }: Props) {
         <dl className="mt-8 grid grid-cols-2 gap-x-4 gap-y-6 text-center">
           {(
             [
-              ["TENANT", claim.alias.toUpperCase()],
+              ["ALIAS", claim.alias.toUpperCase()],
               ["DEPTH", `SUBLEVEL −${claim.depth}`],
               ["ISSUED", formatIssued(claim.issuedISO)],
               ["REGISTRAR", BRAND.label.toUpperCase()],
@@ -474,7 +501,7 @@ export default function DeedCard({ claim, onReset }: Props) {
         className="mt-4 text-center text-[0.64rem]"
         style={{ fontFamily: "var(--font-geist-mono)", color: "#6f6879" }}
       >
-        Breaking another slab forfeits this deed on this device.
+        Breaking another slab clears this key from this device — your number stays on the wall.
       </p>
     </section>
   );
