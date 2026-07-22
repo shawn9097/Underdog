@@ -7,5 +7,10 @@ CLAUDE.local.md
 .DS_Store
 Thumbs.db
 
+# Internal lore — the story bible must NEVER land in this public repo
+*[Ss]tory[_ -][Bb]ible*
+lore/
+story-bible/
+
 # TODO: add language/tool ignores as the project grows
 # (e.g. node_modules/, __pycache__/, target/, dist/, .env)
