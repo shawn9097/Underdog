@@ -4,37 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-Underdog — <!-- TODO: one or two sentences on what this project is and does. -->
+Underdog City (theunderdogcity.com) — a transmedia dark-fantasy music IP. The
+audience-facing centerpiece is the concept album **"Throne At The Bottom"**
+(nu-metal / rap-metal / dark alt-R&B-metal), set in a world where a gleaming
+ring-city called the Halo floats above a discarded sprawl called Underdog City,
+fronted by a masked, gold-cracked figure the city calls Kazo. The album, art,
+and an accompanying story (anime / web-novel style) share one canon.
 
-<!--
-This file is loaded into Claude's context at the START OF EVERY SESSION, so keep
-it lean and high-signal. Document what's true across the whole repo and would
-otherwise have to be rediscovered each time. Fill in the TODOs below and delete
-the markers; remove any section that doesn't apply. Push long or specialized
-detail into `.claude/skills/` or a separate doc you @import, not into here.
--->
+## Repository layout
 
-## Commands
-
-<!-- TODO: the handful of commands used most while developing here, e.g.: -->
-<!--   Install deps:      -->
-<!--   Build:             -->
-<!--   Run / dev server:  -->
-<!--   Lint / format:     -->
-<!--   Test (all):        -->
-<!--   Test (single):     the exact incantation to run ONE test — easy to forget -->
-
-## Architecture
-
-<!-- TODO: the big-picture structure that spans multiple files — the stuff that
-     ISN'T obvious from reading any single file. What are the main pieces, how do
-     they talk to each other, where does a request/data flow begin and end, which
-     directories hold what. Capture the non-obvious; skip what's self-evident. -->
+- `music/<playlist-slug>/` — song files, one `.txt` per track, in
+  `TITLE:` / `STYLE:` / `LYRICS:` format. The `STYLE` block is written as a
+  music-generation prompt (e.g. for Suno). Each playlist folder has a
+  `README.md` track index. First playlist: `music/throne-at-the-bottom/`.
 
 ## Conventions & gotchas
 
-<!-- TODO: project-specific rules and surprises. Naming patterns, "always do X
-     before Y", things that look wrong but are intentional, footguns to avoid. -->
+- **This repo is PUBLIC. Never commit the story bible or any internal lore.**
+  The project keeps a private story bible ("Underdog City Story Bible") whose
+  contents — plot twists, hidden canon, character backstory, and any
+  song-canon classifications — are deliberately withheld from fans as part of
+  the project's mystery/ARG strategy. It must never appear in this repo, in
+  commits, issues, or PR text. When bible context is needed, the owner pastes
+  it into the session; use it as working context only. `.gitignore` blocks
+  common story-bible filenames as a backstop.
+- Repo content must stay at the **audience-facing** level: lyrics, style
+  prompts, released art, public site copy. If something isn't already public,
+  ask before committing it.
+- Track filenames follow `NN - Title.txt` (zero-padded, spaced hyphen).
+- A track file's internal `TITLE:` may intentionally differ from its filename
+  (e.g. `09 - The Old Song.txt` is titled "Unwritten") — don't "fix" these.
 
 ## Related Claude Code config
 
